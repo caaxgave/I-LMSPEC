@@ -16,7 +16,7 @@ from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
 
-#### prueba
+#### PERRO
 
 def train_net(net,
               net_D,
