@@ -274,8 +274,10 @@ def train_net(net,
 
             # Make a report of the losses
             df = pd.DataFrame(data=dict_losses_list)
-            filepath = Path(os.path.join(dir_checkpoint, 'train_report_P%d.csv'%ps))
-            df.to_csv(filepath)
+            #filepath = Path(os.path.join(dir_checkpoint, 'train_report_P%d.csv'%ps))
+            #df.to_csv(filepath)
+
+            experiment.log({'Train report P%d'%ps: wandb.Table(data=df)})
 
     experiment.finish()
 # if __name__ == '__main__':
