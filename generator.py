@@ -40,4 +40,4 @@ class Generator(nn.Module):
                    'subnet_24_3': y_hat2,
                    'subnet_16': y_hat3}
         
-        return outputs
+        return L_pyramid, outputs

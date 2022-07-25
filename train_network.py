@@ -107,7 +107,7 @@ def train_net(net,
 
                 with torch.cuda.amp.autocast(enabled=amp):
 
-                    y_pred = net(exp_images)
+                    laplacian_pyr, y_pred = net(exp_images)
 
                     # Critertions for Losses:
                     mae_loss = nn.L1Loss()
@@ -117,8 +117,8 @@ def train_net(net,
 
                         # Adversarial Loss (only for 256 patches
                         #y_pred = net(exp_images)
-                        y_pred = [Y.detach() for Y in y_pred.values()]
-                        disc_fake = net_D(y_pred[-1])
+                        y_pred_2 = [Y.detach() for Y in y_pred.values()]
+                        disc_fake = net_D(y_pred_2[-1])
                         fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
                         disc_real = net_D(G_pyramid['level1'])
                         real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
@@ -173,6 +173,7 @@ def train_net(net,
                                     'Fake loss': fake_loss.item(), 'lr': g_optimizer.param_groups[0]['lr']}
                     dict_losses_list.append(train_report)
 
+                # LOSSES LOGS
                 experiment.log({
                     #'train loss': final_loss.item(),
                     'Generator loss (batch)': loss_generator.item(),
@@ -182,6 +183,22 @@ def train_net(net,
                     'Adversarial loss (batch)': adv_loss.item(),
                     'step': global_step,
                     'epoch': epoch
+                })
+
+                # PYRAMID LOGS
+                experiment.log({
+                    'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
+                                    wandb.Image(gt_images[0].cuda(), caption='GT patch')
+                                    ],
+                    'Laplacian Pyr':[wandb.Image(laplacian_pyr['level4'].cuda(), caption='Level 4'),
+                                     wandb.Image(laplacian_pyr['level3'].cuda(), caption='Level 3'),
+                                     wandb.Image(laplacian_pyr['level2'].cuda(), caption='Level 2'),
+                                     wandb.Image(laplacian_pyr['level1'].cuda(), caption='Level 1')
+                                     ],
+                    'Gaussian Pyr':[wandb.Image(G_pyramid['level4'].cuda(), caption='Level 4'),
+                                    wandb.Image(G_pyramid['level3'].cuda(), caption='Level 3'),
+                                    wandb.Image(G_pyramid['level2'].cuda(), caption='Level 2'),
+                                    wandb.Image(G_pyramid['level1'].cuda(), caption='Level 1')]
                 })
 
                 pbar.set_postfix(**{#'train loss': final_loss.item(),
@@ -213,12 +230,12 @@ def train_net(net,
                             y_pred_val = net(exp_images_val)
 
                             experiment.log({
-                                'exp_images': wandb.Image(exp_images_val[0].cuda()),
-                                'predictions': {
-                                    'true': wandb.Image(gt_images_val[0].float().cuda()),
-                                    'pred': wandb.Image(y_pred_val['subnet_16'][0].float().cuda()),
-                                },
-                            })
+                                'Validation round': [wandb.Image(exp_images_val[0].cuda(), caption='Exposed'),
+                                                     wandb.Image(gt_images_val[0].float().cuda(),
+                                                                 caption='Ground Truth'),
+                                                     wandb.Image(y_pred_val['subnet_16'][0].float().cuda(),
+                                                                 caption='Prediction')]
+                                })
 
                         logging.info('Validation loss: {}'.format(val_score.item()))
                         experiment.log({
