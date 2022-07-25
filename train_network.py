@@ -135,9 +135,9 @@ def train_net(net,
                         #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
 
                     else:
-                        #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                        disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                        real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                        fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                         adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
                     # Generator Loss
@@ -213,10 +213,10 @@ def train_net(net,
                             y_pred_val = net(exp_images_val)
 
                             experiment.log({
-                                'exp_images': wandb.Image(exp_images_val[0].cpu()),
+                                'exp_images': wandb.Image(exp_images_val[0].cuda()),
                                 'predictions': {
-                                    'true': wandb.Image(gt_images_val[0].float().cpu()),
-                                    'pred': wandb.Image(y_pred_val['subnet_16'][0].float().cpu()),
+                                    'true': wandb.Image(gt_images_val[0].float().cuda()),
+                                    'pred': wandb.Image(y_pred_val['subnet_16'][0].float().cuda()),
                                 },
                             })
 
