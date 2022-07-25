@@ -16,7 +16,6 @@ from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
 
-#### PERRO
 
 def train_net(net,
               net_D,
@@ -124,6 +123,12 @@ def train_net(net,
                         disc_real = net_D(G_pyramid['level1'])
                         real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
                         disc_loss = (fake_loss + real_loss) / 2
+
+                        # DISCRIMINATOR TRAINING
+                        d_optimizer.zero_grad()
+                        disc_loss.backward(retain_graph=True)
+                        d_optimizer.step()
+
                         disc_adv = net_D(y_pred['subnet_16'])
                         adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
@@ -141,11 +146,6 @@ def train_net(net,
                                      mae_loss(y_pred['subnet_24_3'], G_pyramid['level1']) + \
                                      mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
-
-                # DISCRIMINATOR TRAINING
-                d_optimizer.zero_grad()
-                disc_loss.backward(retain_graph=True)
-                d_optimizer.step()
 
                 ##### ZERO GRAD
                 #g_optimizer.zero_grad(set_to_none=True)
