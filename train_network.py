@@ -201,6 +201,8 @@ def train_net(net,
                                     wandb.Image(G_pyramid['level1'].cuda(), caption='Level 1')]
                 })
 
+
+
                 pbar.set_postfix(**{#'train loss': final_loss.item(),
                                     'Generator loss (batch)': loss_generator.item(),
                                     'Real loss (batch)': real_loss.item(),
