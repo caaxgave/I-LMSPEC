@@ -185,22 +185,22 @@ def train_net(net,
                     'epoch': epoch
                 })
 
-                # PYRAMID LOGS
+                # INPUT AND PYRAMID LOGS
                 experiment.log({
                     'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
                                     wandb.Image(gt_images[0].cuda(), caption='GT patch')
                                     ],
-                    'Laplacian Pyr':[wandb.Image(laplacian_pyr['level4'].cuda(), caption='Level 4'),
-                                     wandb.Image(laplacian_pyr['level3'].cuda(), caption='Level 3'),
-                                     wandb.Image(laplacian_pyr['level2'].cuda(), caption='Level 2'),
-                                     wandb.Image(laplacian_pyr['level1'].cuda(), caption='Level 1')
-                                     ],
-                    'Gaussian Pyr':[wandb.Image(G_pyramid['level4'].cuda(), caption='Level 4'),
-                                    wandb.Image(G_pyramid['level3'].cuda(), caption='Level 3'),
-                                    wandb.Image(G_pyramid['level2'].cuda(), caption='Level 2'),
-                                    wandb.Image(G_pyramid['level1'].cuda(), caption='Level 1')]
+                    'Laplacian Pyr': [wandb.Image(laplacian_pyr['level4'][0].cuda(), caption='Level 4'),
+                                      wandb.Image(laplacian_pyr['level3'][0].cuda(), caption='Level 3'),
+                                      wandb.Image(laplacian_pyr['level2'][0].cuda(), caption='Level 2'),
+                                      wandb.Image(laplacian_pyr['level1'][0].cuda(), caption='Level 1')
+                                      ],
+                    'Gaussian Pyr': [wandb.Image(G_pyramid['level4'][0].cuda(), caption='Level 4'),
+                                     wandb.Image(G_pyramid['level3'][0].cuda(), caption='Level 3'),
+                                     wandb.Image(G_pyramid['level2'][0].cuda(), caption='Level 2'),
+                                     wandb.Image(G_pyramid['level1'][0].cuda(), caption='Level 1')
+                                     ]
                 })
-
 
 
                 pbar.set_postfix(**{#'train loss': final_loss.item(),
