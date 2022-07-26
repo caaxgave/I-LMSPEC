@@ -41,6 +41,18 @@ def get_args():
     return parser.parse_args()
 
 
+@contextmanager
+def all_logging_disabled(highest_level=logging.CRITICAL):
+    previous_level = logging.root.manager.disable
+
+    logging.disable(highest_level)
+
+    try:
+        yield
+    finally:
+        logging.disable(previous_level)
+
+
 if __name__ == '__main__':
     opt = get_args()
     in_files = opt.input_dir
@@ -85,18 +97,18 @@ if __name__ == '__main__':
         # INPUT AND PYRAMID LOGS
         with all_logging_disabled():
             experiment.log({
-                'Input Patch': [wandb.Image(img.cuda(), caption='Exposed patch'),
-                                wandb.Image(gt.cuda(), caption='GT patch')
+                'Input Patch': [wandb.Image(img, caption='Exposed patch'),
+                                wandb.Image(gt, caption='GT patch')
                                 ],
-                'Laplacian Pyr': [wandb.Image(lp_pyr['level4'].cuda(), caption='Level 4'),
-                                  wandb.Image(lp_pyr['level3'].cuda(), caption='Level 3'),
-                                  wandb.Image(lp_pyr['level2'].cuda(), caption='Level 2'),
-                                  wandb.Image(lp_pyr['level1'].cuda(), caption='Level 1')
+                'Laplacian Pyr': [wandb.Image(lp_pyr['level4'], caption='Level 4'),
+                                  wandb.Image(lp_pyr['level3'], caption='Level 3'),
+                                  wandb.Image(lp_pyr['level2'], caption='Level 2'),
+                                  wandb.Image(lp_pyr['level1'], caption='Level 1')
                                   ],
-                'Predictions': [wandb.Image(ypred['subnet_24_1'].cuda(), caption='subnet_24_1'),
-                                wandb.Image(ypred['subnet_24_2'].cuda(), caption='subnet_24_2'),
-                                wandb.Image(ypred['subnet_24_3'].cuda(), caption='subnet_24_3'),
-                                wandb.Image(ypred['subnet_16'].cuda(), caption='subnet_16')]
+                'Predictions': [wandb.Image(ypred['subnet_24_1'], caption='subnet_24_1'),
+                                wandb.Image(ypred['subnet_24_2'], caption='subnet_24_2'),
+                                wandb.Image(ypred['subnet_24_3'], caption='subnet_24_3'),
+                                wandb.Image(ypred['subnet_16'], caption='subnet_16')]
             })
 
         experiment.finish()
@@ -105,15 +117,3 @@ if __name__ == '__main__':
         #new_path = os.path.join(out_files, original_name)
         #y_pred.save(new_path, format="png")
         #logging.info(f'Image {original_name} was saved in {os.path.split(new_path)[0]}')
-
-
-@contextmanager
-def all_logging_disabled(highest_level=logging.CRITICAL):
-    previous_level = logging.root.manager.disable
-
-    logging.disable(highest_level)
-
-    try:
-        yield
-    finally:
-        logging.disable(previous_level)

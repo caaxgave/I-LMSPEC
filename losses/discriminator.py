@@ -17,8 +17,8 @@ class Discriminator(nn.Module):
         self.d_out = DiscOut(256, 1)
     
     def forward(self, y_hat):
-        if y_hat.shape[2]!=256 and y_hat.shape[3]!=256:
-            y_hat = F.interpolate(y_hat,(256,256),mode='bilinear',align_corners=True)
+        if y_hat.shape[2] != 256 and y_hat.shape[3] != 256:
+            y_hat = F.interpolate(y_hat, (256, 256), mode='bilinear', align_corners=True)
         y1 = self.d_1(y_hat)
         y2 = self.d_2(y1)
         y3 = self.d_3(y2)
