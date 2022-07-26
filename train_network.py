@@ -187,8 +187,7 @@ def train_net(net,
                 })
 
                 # INPUT AND PYRAMID LOGS
-                with warnings.catch_warnings():
-                    warnings.simplefilter('ignore')
+                with all_logging_disabled():
                     experiment.log({
                         'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
                                         wandb.Image(gt_images[0].cuda(), caption='GT patch')
@@ -284,3 +283,15 @@ def train_net(net,
 
     experiment.finish()
 # if __name__ == '__main__':
+
+
+@contextmanager
+def all_logging_disabled(highest_level=logging.CRITICAL):
+    previous_level = logging.root.manager.disable
+
+    logging.disable(highest_level)
+
+    try:
+        yield
+    finally:
+        logging.disable(previous_level)
