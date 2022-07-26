@@ -6,6 +6,7 @@ import torchvision.transforms as T
 from PIL import Image
 from generator import Generator
 from contextlib import contextmanager
+import wandb
 
 
 def predict_img(net,
