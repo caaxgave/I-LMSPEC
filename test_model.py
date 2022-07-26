@@ -105,10 +105,10 @@ if __name__ == '__main__':
                                   wandb.Image(lp_pyr['level2'], caption='Level 2'),
                                   wandb.Image(lp_pyr['level1'], caption='Level 1')
                                   ],
-                'Predictions': [wandb.Image(ypred['subnet_24_1'], caption='subnet_24_1'),
-                                wandb.Image(ypred['subnet_24_2'], caption='subnet_24_2'),
-                                wandb.Image(ypred['subnet_24_3'], caption='subnet_24_3'),
-                                wandb.Image(ypred['subnet_16'], caption='subnet_16')]
+                'Predictions': [wandb.Image(y_pred['subnet_24_1'], caption='subnet_24_1'),
+                                wandb.Image(y_pred['subnet_24_2'], caption='subnet_24_2'),
+                                wandb.Image(y_pred['subnet_24_3'], caption='subnet_24_3'),
+                                wandb.Image(y_pred['subnet_16'], caption='subnet_16')]
             })
 
         experiment.finish()
