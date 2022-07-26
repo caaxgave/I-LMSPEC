@@ -187,6 +187,7 @@ def train_net(net,
                     'epoch': epoch
                 })
 
+                """Uncomment for displaying input patches, Laplacian and Gaussian pyramid, in wandb."""
                 # INPUT AND PYRAMID LOGS
                 # with all_logging_disabled():
                 #     experiment.log({
