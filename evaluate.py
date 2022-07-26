@@ -18,7 +18,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
 
         with torch.no_grad():
             # Predictions (forward propagation)
-            y_pred = net(exp_images)
+            _, y_pred = net(exp_images)
             GP = GaussianPyramid(4) 
             G_pyramid = GP(gt_images)
             

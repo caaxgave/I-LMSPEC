@@ -15,6 +15,8 @@ from utils.pyramids import GaussianPyramid
 from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def train_net(net,
@@ -229,7 +231,7 @@ def train_net(net,
                         for batch_val in val_loader:
                             exp_images_val = batch_val['exp_image']
                             gt_images_val = batch_val['gt_image']
-                            y_pred_val = net(exp_images_val)
+                            _, y_pred_val = net(exp_images_val)
 
                             experiment.log({
                                 'Validation round': [wandb.Image(exp_images_val[0].cuda(), caption='Exposed'),
