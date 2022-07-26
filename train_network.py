@@ -16,7 +16,6 @@ from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
 import warnings
-warnings.filterwarnings("ignore")
 
 
 def train_net(net,
@@ -188,21 +187,23 @@ def train_net(net,
                 })
 
                 # INPUT AND PYRAMID LOGS
-                experiment.log({
-                    'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
-                                    wandb.Image(gt_images[0].cuda(), caption='GT patch')
-                                    ],
-                    'Laplacian Pyr': [wandb.Image(laplacian_pyr['level4'][0].cuda(), caption='Level 4'),
-                                      wandb.Image(laplacian_pyr['level3'][0].cuda(), caption='Level 3'),
-                                      wandb.Image(laplacian_pyr['level2'][0].cuda(), caption='Level 2'),
-                                      wandb.Image(laplacian_pyr['level1'][0].cuda(), caption='Level 1')
-                                      ],
-                    'Gaussian Pyr': [wandb.Image(G_pyramid['level4'][0].cuda(), caption='Level 4'),
-                                     wandb.Image(G_pyramid['level3'][0].cuda(), caption='Level 3'),
-                                     wandb.Image(G_pyramid['level2'][0].cuda(), caption='Level 2'),
-                                     wandb.Image(G_pyramid['level1'][0].cuda(), caption='Level 1')
-                                     ]
-                })
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore')
+                    experiment.log({
+                        'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
+                                        wandb.Image(gt_images[0].cuda(), caption='GT patch')
+                                        ],
+                        'Laplacian Pyr': [wandb.Image(laplacian_pyr['level4'][0].cuda(), caption='Level 4'),
+                                          wandb.Image(laplacian_pyr['level3'][0].cuda(), caption='Level 3'),
+                                          wandb.Image(laplacian_pyr['level2'][0].cuda(), caption='Level 2'),
+                                          wandb.Image(laplacian_pyr['level1'][0].cuda(), caption='Level 1')
+                                          ],
+                        'Gaussian Pyr': [wandb.Image(G_pyramid['level4'][0].cuda(), caption='Level 4'),
+                                         wandb.Image(G_pyramid['level3'][0].cuda(), caption='Level 3'),
+                                         wandb.Image(G_pyramid['level2'][0].cuda(), caption='Level 2'),
+                                         wandb.Image(G_pyramid['level1'][0].cuda(), caption='Level 1')
+                                         ]
+                    })
 
 
                 pbar.set_postfix(**{#'train loss': final_loss.item(),
