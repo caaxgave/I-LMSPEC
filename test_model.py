@@ -17,15 +17,15 @@ def predict_img(net,
     img = transform(full_img)
     img = img.to(device=device, dtype=torch.float32)
 
-    output = []
+    outputs = []
 
     with torch.no_grad():
         lp_pyr, output = net(img)
         trans_PIL = T.ToPILImage()
-        output.append(trans_PIL(output['subnet_24_1'][0]))
-        output.append(trans_PIL(output['subnet_24_2'][0]))
-        output.append(trans_PIL(output['subnet_24_3'][0]))
-        output.append(trans_PIL(output['subnet_16'][0]))
+        outputs.append(trans_PIL(output['subnet_24_1'][0]))
+        outputs.append(trans_PIL(output['subnet_24_2'][0]))
+        outputs.append(trans_PIL(output['subnet_24_3'][0]))
+        outputs.append(trans_PIL(output['subnet_16'][0]))
 
     return lp_pyr, output
 
