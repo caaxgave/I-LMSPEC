@@ -188,22 +188,22 @@ def train_net(net,
                 })
 
                 # INPUT AND PYRAMID LOGS
-                with all_logging_disabled():
-                    experiment.log({
-                        'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
-                                        wandb.Image(gt_images[0].cuda(), caption='GT patch')
-                                        ],
-                        'Laplacian Pyr': [wandb.Image(laplacian_pyr['level4'][0].cuda(), caption='Level 4'),
-                                          wandb.Image(laplacian_pyr['level3'][0].cuda(), caption='Level 3'),
-                                          wandb.Image(laplacian_pyr['level2'][0].cuda(), caption='Level 2'),
-                                          wandb.Image(laplacian_pyr['level1'][0].cuda(), caption='Level 1')
-                                          ],
-                        'Gaussian Pyr': [wandb.Image(G_pyramid['level4'][0].cuda(), caption='Level 4'),
-                                         wandb.Image(G_pyramid['level3'][0].cuda(), caption='Level 3'),
-                                         wandb.Image(G_pyramid['level2'][0].cuda(), caption='Level 2'),
-                                         wandb.Image(G_pyramid['level1'][0].cuda(), caption='Level 1')
-                                         ]
-                    })
+                # with all_logging_disabled():
+                #     experiment.log({
+                #         'Input Patch': [wandb.Image(exp_images[0].cuda(), caption='Exposed patch'),
+                #                         wandb.Image(gt_images[0].cuda(), caption='GT patch')
+                #                         ],
+                #         'Laplacian Pyr': [wandb.Image(laplacian_pyr['level4'][0].cuda(), caption='Level 4'),
+                #                           wandb.Image(laplacian_pyr['level3'][0].cuda(), caption='Level 3'),
+                #                           wandb.Image(laplacian_pyr['level2'][0].cuda(), caption='Level 2'),
+                #                           wandb.Image(laplacian_pyr['level1'][0].cuda(), caption='Level 1')
+                #                           ],
+                #         'Gaussian Pyr': [wandb.Image(G_pyramid['level4'][0].cuda(), caption='Level 4'),
+                #                          wandb.Image(G_pyramid['level3'][0].cuda(), caption='Level 3'),
+                #                          wandb.Image(G_pyramid['level2'][0].cuda(), caption='Level 2'),
+                #                          wandb.Image(G_pyramid['level1'][0].cuda(), caption='Level 1')
+                #                          ]
+                #     })
 
 
                 pbar.set_postfix(**{#'train loss': final_loss.item(),
@@ -236,9 +236,9 @@ def train_net(net,
 
                             experiment.log({
                                 'Validation round': [wandb.Image(exp_images_val[0].cuda(), caption='Exposed'),
-                                                     wandb.Image(gt_images_val[0].float().cuda(),
+                                                     wandb.Image(gt_images_val[0].cuda(),
                                                                  caption='Ground Truth'),
-                                                     wandb.Image(y_pred_val['subnet_16'][0].float().cuda(),
+                                                     wandb.Image(y_pred_val['subnet_16'][0].cuda(),
                                                                  caption='Prediction')]
                                 })
 
