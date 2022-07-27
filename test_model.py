@@ -111,9 +111,9 @@ if __name__ == '__main__':
                                 wandb.Image(y_pred['subnet_16'], caption='subnet_16')]
             })
 
-    experiment.finish()
+        original_name = os.path.split(filename)[1]
+        new_path = os.path.join(out_files, original_name)
+        y_pred['subnet_16'].save(new_path, format="png")
+        logging.info(f'Image {original_name} was saved in {os.path.split(new_path)[0]}')
 
-        #original_name = os.path.split(filename)[1]
-        #new_path = os.path.join(out_files, original_name)
-        #y_pred.save(new_path, format="png")
-        #logging.info(f'Image {original_name} was saved in {os.path.split(new_path)[0]}')
+    experiment.finish()
