@@ -111,7 +111,7 @@ if __name__ == '__main__':
                                 wandb.Image(y_pred['subnet_16'], caption='subnet_16')]
             })
 
-        experiment.finish()
+    experiment.finish()
 
         #original_name = os.path.split(filename)[1]
         #new_path = os.path.join(out_files, original_name)
