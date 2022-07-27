@@ -3,6 +3,7 @@ import logging
 import os
 import torch
 import torchvision.transforms as T
+from torchvision.utils import save_image
 from PIL import Image
 from generator import Generator
 from contextlib import contextmanager
@@ -113,7 +114,7 @@ if __name__ == '__main__':
 
         original_name = os.path.split(filename)[1]
         new_path = os.path.join(out_files, original_name)
-        y_pred['subnet_16'].save(new_path, format="png")
+        save_image(y_pred['subnet_16'], new_path)
         logging.info(f'Image {original_name} was saved in {os.path.split(new_path)[0]}')
 
     experiment.finish()
