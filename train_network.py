@@ -124,7 +124,7 @@ def train_net(net,
                         fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
                         disc_real = net_D(G_pyramid['level1'])
                         real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
-                        disc_loss = (fake_loss + real_loss) #/ 2
+                        disc_loss = (fake_loss + real_loss) #/ 2 #n
 
                         # DISCRIMINATOR TRAINING
                         d_optimizer.zero_grad()
