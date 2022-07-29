@@ -110,7 +110,7 @@ def train_net(net,
 
                 laplacian_pyr, y_pred = net(exp_images)
 
-                if (epoch+1 >= 15) and (ps == 256):
+                if (epoch+1 >= 1) and (ps == 256):
                     generator_loss = GeneratorLoss(net_d=net_D, device=device, use_adv=True)
                     discriminator_loss = DiscriminatorLoss(net_d=net_D, device=device, use_adv=True)
 

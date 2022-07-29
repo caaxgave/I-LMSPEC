@@ -27,7 +27,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
 
             laplacian_pyr, y_pred = net(exp_images)
 
-            if (epoch + 1 >= 15) and (ps == 256):
+            if (epoch + 1 >= 11) and (ps == 256):
                 generator_loss = GeneratorLoss(net_d=net_D, device=device, use_adv=True)
                 loss_generator, adv_loss = generator_loss(y_pred, G_pyramid)
 
