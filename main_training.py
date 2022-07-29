@@ -95,12 +95,12 @@ for ps in patch_sizes:
         epochs = 30  # number of epochs for 128x128 case.
         minibatch = 8  # mini-batch size.
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
-        D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
+        #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
         if opt.load_model:
             continue
         else:
             net.load_state_dict(torch.load(from_chkpoint, map_location=device))
-            net_D.load_state_dict(torch.load(D_from_chkpoint, map_location=device))
+        #    net_D.load_state_dict(torch.load(D_from_chkpoint, map_location=device))
 
         # if opt.with_discriminator:
         #     from_chkpoint_d = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
