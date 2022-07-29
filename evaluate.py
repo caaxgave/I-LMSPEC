@@ -1,8 +1,8 @@
 import torch
 import torch.nn.functional as F
 from utils.pyramids import *
-from losses.discriminator_loss import DiscriminatorLoss
-from losses.discriminator_loss import adversarial_loss
+from losses.losses import DiscriminatorLoss
+from losses.losses import GeneratorLoss
 from tqdm import tqdm
 from utils.pyramids import GaussianPyramid
 
@@ -25,39 +25,18 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
             for pyramid in G_pyramid:
                 G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
-            # Losses:
-            # Generator Loss
-            mae_loss = nn.L1Loss(reduction='sum')
+            laplacian_pyr, y_pred = net(exp_images)
 
-            # bce_loss = nn.BCELoss()
-            bcelog_loss = nn.BCEWithLogitsLoss()  # This already includes sigmoid
-
-            if (epoch+1 >= 15) and (ps == 256):
-
-                #Adversarial Loss (only for 256 patches)
-                disc_fake = net_D(y_pred['subnet_16'])
-                fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
-                disc_real = net_D(G_pyramid['level1'])
-                real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
-                disc_loss = (fake_loss + real_loss) #/ 2
-
-                disc_adv = net_D(y_pred['subnet_16'])
-                adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
-
-                # adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
+            if (epoch + 1 >= 15) and (ps == 256):
+                generator_loss = GeneratorLoss(net_d=net_D, device=device, use_adv=True)
+                loss_generator, adv_loss = generator_loss(y_pred, G_pyramid)
 
             else:
-            #     #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-            #     #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-            #     #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                 adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                generator_loss = GeneratorLoss(net_d=net_D, device=device, use_adv=False)
+                loss_generator, adv_loss = generator_loss(y_pred, G_pyramid)
 
             # Generator Loss
-            val_loss_generator += (
-                    4 * mae_loss(y_pred['subnet_24_1'], G_pyramid['level3']) +
-                    2 * mae_loss(y_pred['subnet_24_2'], G_pyramid['level2']) +
-                    mae_loss(y_pred['subnet_24_3'], G_pyramid['level1']) +
-                    mae_loss(y_pred['subnet_16'], G_pyramid['level1'])) + adv_loss
+            val_loss_generator += loss_generator + val_loss_generator
 
     net.train()
 
