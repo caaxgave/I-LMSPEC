@@ -69,7 +69,7 @@ class DiscriminatorLoss(nn.Module):
 class AdversarialLoss(nn.Module):
     def __init__(self, net_d):
         super(AdversarialLoss, self).__init__()
-        self.net_d = net_d_adv
+        self.net_d = net_d
         self.criterion_adv = nn.BCEWithLogitsLoss()
 
     def forward(self, y):
