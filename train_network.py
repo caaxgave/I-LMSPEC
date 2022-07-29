@@ -128,20 +128,20 @@ def train_net(net,
                 disc_loss.backward(retain_graph=True)
                 d_optimizer.step()
 
-                if (epoch+1 >= 15) and (ps == 256):
+                #if (epoch+1 >= 15) and (ps == 256):
 
-                    # Adversarial Loss (only for 256 patches
-                    laplacian_pyr, y_pred = net(exp_images)
-                    disc_adv = net_D(y_pred['subnet_16'])
-                    adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
+                # Adversarial Loss (only for 256 patches
+                laplacian_pyr, y_pred = net(exp_images)
+                disc_adv = net_D(y_pred['subnet_16'])
+                adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
                     #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
 
-                else:
-                    #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                    #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                    #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                # else:
+                #     #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                #     #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                #     #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                #     adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
 
                 #laplacian_pyr, y_pred = net(exp_images)
