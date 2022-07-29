@@ -119,8 +119,8 @@ def train_net(net,
 
                         # Adversarial Loss (only for 256 patches
                         #_, y_pred = net(exp_images)
-                        y_pred = [Y.detach() for Y in y_pred.values()]
-                        disc_fake = net_D(y_pred[-1])
+                        y_pred_2 = [Y.detach() for Y in y_pred.values()]
+                        disc_fake = net_D(y_pred_2[-1])
                         #disc_fake = net_D(y_pred['subnet_16'].detach())
                         fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
                         disc_real = net_D(G_pyramid['level1'])
