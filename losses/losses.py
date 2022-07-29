@@ -12,12 +12,14 @@ class GeneratorLoss(nn.Module):
         self.use_adv = use_adv
 
         if self.use_adv:
-            self.advloss = AdversarialLoss(self.net_d)
-            self.adv_loss = advloss(y['subnet_16'])
+            self.adv_loss = AdversarialLoss(self.net_d)
         else:
             self.adv_loss = torch.tensor([[0]]).to(device=self.device, dtype=torch.float32)
 
     def forward(self, y, t):
+
+        if self.use_adv:
+            self.adv_loss = self.adv_loss(y['subnet_16'])
 
         # Generator Loss
         loss_generator = 4 * self.criterion(y['subnet_24_1'],
@@ -67,7 +69,7 @@ class DiscriminatorLoss(nn.Module):
 class AdversarialLoss(nn.Module):
     def __init__(self, net_d):
         super(AdversarialLoss, self).__init__()
-        self.net_d = net_d
+        self.net_d = net_d_adv
         self.criterion_adv = nn.BCEWithLogitsLoss()
 
     def forward(self, y):
