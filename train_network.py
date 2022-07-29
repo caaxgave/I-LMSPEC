@@ -107,47 +107,49 @@ def train_net(net,
                 for pyramid in G_pyramid:
                     G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
-                with torch.cuda.amp.autocast(enabled=amp):
+                #with torch.cuda.amp.autocast(enabled=amp):
 
+                # Critertions for Losses:
+                mae_loss = nn.L1Loss()
+                bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
+                laplacian_pyr, y_pred = net(exp_images)
+
+                #DISCRIMINATOR TRAINING
+                # _, y_pred_2 = net(exp_images)
+                y_pred_2 = [Y.detach() for Y in y_pred.values()]
+                disc_fake = net_D(y_pred_2[-1])
+                # disc_fake = net_D(y_pred['subnet_16'].detach())
+                fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
+                disc_real = net_D(G_pyramid['level1'])
+                real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
+                disc_loss = (fake_loss + real_loss)  # / 2
+
+                d_optimizer.zero_grad()
+                disc_loss.backward(retain_graph=True)
+                d_optimizer.step()
+
+                if (epoch+1 >= 15) and (ps == 256):
+
+                    # Adversarial Loss (only for 256 patches
                     laplacian_pyr, y_pred = net(exp_images)
+                    disc_adv = net_D(y_pred['subnet_16'])
+                    adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
-                    # Critertions for Losses:
-                    mae_loss = nn.L1Loss()
-                    bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
+                    #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
 
-                    if (epoch+1 >= 15) and (ps == 256):
+                else:
+                    #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
-                        # Adversarial Loss (only for 256 patches
-                        _, y_pred_2 = net(exp_images)
-                        y_pred_2 = [Y.detach() for Y in y_pred_2.values()]
-                        disc_fake = net_D(y_pred_2[-1])
-                        #disc_fake = net_D(y_pred['subnet_16'].detach())
-                        fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
-                        disc_real = net_D(G_pyramid['level1'])
-                        real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
-                        disc_loss = (fake_loss + real_loss) #/ 2
 
-                        # DISCRIMINATOR TRAINING
-                        d_optimizer.zero_grad()
-                        disc_loss.backward(retain_graph=True)
-                        d_optimizer.step()
-
-                        disc_adv = net_D(y_pred['subnet_16'])
-                        adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
-
-                        #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
-
-                    else:
-                        disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-
-                    # Generator Loss
-                    loss_generator = 4 * mae_loss(y_pred['subnet_24_1'], G_pyramid['level3']) + \
-                                     2 * mae_loss(y_pred['subnet_24_2'], G_pyramid['level2']) + \
-                                     mae_loss(y_pred['subnet_24_3'], G_pyramid['level1']) + \
-                                     mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
+                #laplacian_pyr, y_pred = net(exp_images)
+                # Generator Loss
+                loss_generator = 4 * mae_loss(y_pred['subnet_24_1'], G_pyramid['level3']) + \
+                                 2 * mae_loss(y_pred['subnet_24_2'], G_pyramid['level2']) + \
+                                 mae_loss(y_pred['subnet_24_3'], G_pyramid['level1']) + \
+                                 mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
 
                 ##### ZERO GRAD
@@ -255,8 +257,10 @@ def train_net(net,
                         })
 
         scheduler.step()
-        if (epoch+1 >= 15) and (ps == 256):
-            d_scheduler.step()
+        d_scheduler.step()
+
+        #if (epoch+1 >= 15) and (ps == 256):
+        #    d_scheduler.step()
 
         if dir_checkpoint:
             Path(os.path.join(dir_checkpoint, 'main_net')).mkdir(parents=True, exist_ok=True)
