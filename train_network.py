@@ -108,7 +108,7 @@ def train_net(net,
                     G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
                 laplacian_pyr, y_pred = net(exp_images)
-                mae_loss = nn.L1Loss(reduction='sum')
+                mae_loss = nn.L1Loss()
                 bcelog_loss = nn.BCEWithLogitsLoss()
 
                 if (epoch+1 >= 15) and (ps == 256):
