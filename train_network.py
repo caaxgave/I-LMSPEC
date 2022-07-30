@@ -14,7 +14,6 @@ import torch.nn.functional as F
 from utils.data_loading import ImageDataset
 from utils.pyramids import GaussianPyramid
 from losses.discriminator_loss import DiscriminatorLoss
-from losses.discriminator_loss import GeneratorLoss
 from evaluate import evaluate
 from contextlib import contextmanager
 import warnings
