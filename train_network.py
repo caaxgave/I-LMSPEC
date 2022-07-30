@@ -111,7 +111,7 @@ def train_net(net,
                 mae_loss = nn.L1Loss(reduction='sum')
                 bcelog_loss = nn.BCEWithLogitsLoss()
 
-                if (epoch+1 >= 1) and (ps == 256):
+                if (epoch+1 >= 15) and (ps == 256):
                     # Adversarial Loss (only for 256 patches
                     # _, y_pred_2 = net(exp_images)
                     y_pred_2 = [Y.detach() for Y in y_pred.values()]

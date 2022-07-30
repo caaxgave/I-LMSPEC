@@ -29,7 +29,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
             mae_loss = nn.L1Loss(reduction='sum')
             bcelog_loss = nn.BCEWithLogitsLoss()
 
-            if (epoch + 1 >= 1) and (ps == 256):
+            if (epoch + 1 >= 15) and (ps == 256):
 
                 disc_adv = net_D(y_pred['subnet_16'])
                 adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
