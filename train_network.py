@@ -13,8 +13,8 @@ import torchvision.transforms as T
 import torch.nn.functional as F
 from utils.data_loading import ImageDataset
 from utils.pyramids import GaussianPyramid
-from losses.losses import DiscriminatorLoss
-from losses.losses import GeneratorLoss
+from losses.discriminator_loss import DiscriminatorLoss
+from losses.discriminator_loss import GeneratorLoss
 from evaluate import evaluate
 from contextlib import contextmanager
 import warnings

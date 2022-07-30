@@ -1,8 +1,8 @@
 import torch
 import torch.nn.functional as F
 from utils.pyramids import *
-from losses.losses import DiscriminatorLoss
-from losses.losses import GeneratorLoss
+from losses.discriminator_loss import DiscriminatorLoss
+from losses.discriminator_loss import GeneratorLoss
 from tqdm import tqdm
 from utils.pyramids import GaussianPyramid
 
