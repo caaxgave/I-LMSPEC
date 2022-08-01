@@ -17,6 +17,7 @@ from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
 from contextlib import contextmanager
+#from losses.losses import GeneratorLoss, DiscLoss
 import warnings
 
 
@@ -80,6 +81,9 @@ def train_net(net,
     global_step = 0
     dict_losses_list = []
 
+    #discriminator_loss = DiscLoss()
+    #gen_loss = GeneratorLoss(size=ps)
+
     # 5. Begin training
     for epoch in range(epochs):
 
@@ -109,18 +113,21 @@ def train_net(net,
                     G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
                 laplacian_pyr, y_pred = net(exp_images)
-                mae_loss = nn.L1Loss(reduction='sum') #
+                mae_loss = nn.L1Loss(reduction='sum')
                 #bcelog_loss = nn.BCEWithLogitsLoss()
 
                 if (epoch+1 >= 15) and (ps == 256):
+
                     # Adversarial Loss (only for 256 patches
-                    # _, y_pred_2 = net(exp_images)
+                    #_, y_pred_2 = net(exp_images)
                     #y_pred_2 = [Y.detach() for Y in y_pred.values()]
                     #disc_fake = net_D(y_pred_2[-1])
-                    # disc_fake = net_D(y_pred['subnet_16'].detach())
+                    #disc_fake = net_D(y_pred['subnet_16'].detach())
                     #fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
                     #disc_real = net_D(G_pyramid['level1'])
                     #real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
+                    #disc_loss = discriminator_loss(disc_fake, disc_real)
+
 
                     DL = DiscriminatorLoss(net_d=net_D, device=device)
                     real_loss, fake_loss = DL(G_pyramid['level1'], y_pred['subnet_16'])
@@ -145,6 +152,7 @@ def train_net(net,
 
                 # Generator Loss
                 C = (ps**2)* 3
+                W = (ps ** 2) * 12
                 loss_generator = (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
                                               F.interpolate(G_pyramid['level4'],
                                                             (y_pred['subnet_24_1'].shape[2],
@@ -159,7 +167,7 @@ def train_net(net,
                                  mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
                                                             (y_pred['subnet_16'].shape[2],
                                                              y_pred['subnet_16'].shape[3]))))/y_pred['subnet_16'].shape[0] \
-                                 + adv_loss)
+                                 + W*adv_loss)
 
                 #GENERATOR TRAINING
                 g_optimizer.zero_grad()
