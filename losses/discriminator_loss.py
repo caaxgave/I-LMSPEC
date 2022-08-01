@@ -22,8 +22,7 @@ class DiscriminatorLoss(nn.Module):
 def adversarial_loss(net_d, y, device):
     ps = y.size(dim=2)
     #epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=device, dtype=torch.float32)
-    W = (ps ** 2) * 12
-    adv_loss = -W * torch.mean(torch.log(torch.sigmoid(net_d(y) + 1e-9)))
+    adv_loss = -torch.mean(torch.log(torch.sigmoid(net_d(y) + 1e-9)))
     # adv_loss = (12*ps*ps)*torch.mean(adv_loss)
 
     return adv_loss

@@ -40,6 +40,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
 
             # Generator Loss
             C = (ps ** 2) * 3
+            W = (ps ** 2) * 12
             val_loss_generator += (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
                                               F.interpolate(G_pyramid['level4'],
                                                             (y_pred['subnet_24_1'].shape[2],
@@ -54,7 +55,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
                                  mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
                                                             (y_pred['subnet_16'].shape[2],
                                                              y_pred['subnet_16'].shape[3]))))/y_pred['subnet_16'].shape[0] \
-                                 + adv_loss)
+                                 + W*adv_loss)
 
     net.train()
 
