@@ -39,22 +39,22 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
                 adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
             # Generator Loss
-            val_loss_generator += (4 * mae_loss(y_pred['subnet_24_1'],
-                                           F.interpolate(G_pyramid['level4'],
-                                                         (y_pred['subnet_24_1'].shape[2],
-                                                          y_pred['subnet_24_1'].shape[3]))) +
-                              2 * mae_loss(y_pred['subnet_24_2'],
-                                           F.interpolate(G_pyramid['level3'],
-                                                         (y_pred['subnet_24_2'].shape[2],
-                                                          y_pred['subnet_24_2'].shape[3]))) +
-                              mae_loss(y_pred['subnet_24_3'], F.interpolate(G_pyramid['level2'],
-                                                                            (y_pred['subnet_24_3'].shape[2],
-                                                                             y_pred['subnet_24_3'].shape[3]))) +
-                              mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
-                                                                          (y_pred['subnet_16'].shape[2],
-                                                                           y_pred['subnet_16'].shape[3])))) / \
-                             y_pred['subnet_16'].shape[0] \
-                             + adv_loss
+            C = (ps ** 2) * 3 * 255
+            val_loss_generator += (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
+                                              F.interpolate(G_pyramid['level4'],
+                                                            (y_pred['subnet_24_1'].shape[2],
+                                                             y_pred['subnet_24_1'].shape[3]))) +
+                                 2 * mae_loss(y_pred['subnet_24_2'],
+                                              F.interpolate(G_pyramid['level3'],
+                                                            (y_pred['subnet_24_2'].shape[2],
+                                                             y_pred['subnet_24_2'].shape[3]))) +
+                                 mae_loss(y_pred['subnet_24_3'], F.interpolate(G_pyramid['level2'],
+                                                            (y_pred['subnet_24_3'].shape[2],
+                                                             y_pred['subnet_24_3'].shape[3]))) +
+                                 mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
+                                                            (y_pred['subnet_16'].shape[2],
+                                                             y_pred['subnet_16'].shape[3]))))/y_pred['subnet_16'].shape[0] \
+                                 + adv_loss)
 
     net.train()
 
