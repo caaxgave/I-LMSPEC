@@ -13,7 +13,7 @@ class DiscriminatorLoss(nn.Module):
         # ps = t.size(dim=2)
         #epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=self.device, dtype=torch.float32)
         loss_real = -torch.mean(torch.log(self.net_d(t) + 1e-9))
-        loss_generated = -torch.mean(torch.log(1 - self.net_d(y).detach() + 1e-9))
+        loss_generated = -torch.mean(torch.log(1 - self.net_d(y.detach()) + 1e-9))
         # disc_loss = loss_real + loss_generated
 
         return loss_real, loss_generated
