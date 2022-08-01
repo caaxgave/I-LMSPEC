@@ -144,7 +144,7 @@ def train_net(net,
 
 
                 # Generator Loss
-                C = (ps**2)* 3 * 255
+                C = (ps**2)* 3
                 loss_generator = (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
                                               F.interpolate(G_pyramid['level4'],
                                                             (y_pred['subnet_24_1'].shape[2],

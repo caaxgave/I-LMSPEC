@@ -39,7 +39,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
                 adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
             # Generator Loss
-            C = (ps ** 2) * 3 * 255
+            C = (ps ** 2) * 3
             val_loss_generator += (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
                                               F.interpolate(G_pyramid['level4'],
                                                             (y_pred['subnet_24_1'].shape[2],
