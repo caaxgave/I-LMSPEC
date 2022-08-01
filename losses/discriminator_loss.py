@@ -11,9 +11,9 @@ class DiscriminatorLoss(nn.Module):
 
     def forward(self, t, y):
         # ps = t.size(dim=2)
-        epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=self.device, dtype=torch.float32)
-        loss_real = -torch.mean(torch.log(torch.maximum(self.net_d(t), epsilon)))
-        loss_generated = -torch.mean(torch.log(torch.maximum(1 - self.net_d(y).detach(), epsilon)))
+        #epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=self.device, dtype=torch.float32)
+        loss_real = -torch.mean(torch.log(self.net_d(t) + 1e-9))
+        loss_generated = -torch.mean(torch.log(1 - self.net_d(y).detach() + 1e-9))
         # disc_loss = loss_real + loss_generated
 
         return loss_real, loss_generated
@@ -21,9 +21,9 @@ class DiscriminatorLoss(nn.Module):
 
 def adversarial_loss(net_d, y, device):
     ps = y.size(dim=2)
-    epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=device, dtype=torch.float32)
+    #epsilon = torch.tensor([[10e-09]], requires_grad=False).to(device=device, dtype=torch.float32)
     W = (ps ** 2) * 12
-    adv_loss = -W * torch.mean(torch.log(torch.maximum(net_d(y), epsilon)))
+    adv_loss = -W * torch.mean(torch.log(net_d(y) + 1e-9))
     # adv_loss = (12*ps*ps)*torch.mean(adv_loss)
 
     return adv_loss

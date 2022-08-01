@@ -14,6 +14,7 @@ import torch.nn.functional as F
 from utils.data_loading import ImageDataset
 from utils.pyramids import GaussianPyramid
 from losses.discriminator_loss import DiscriminatorLoss
+from losses.discriminator_loss import adversarial_loss
 from evaluate import evaluate
 from contextlib import contextmanager
 import warnings
@@ -108,27 +109,31 @@ def train_net(net,
                     G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
                 laplacian_pyr, y_pred = net(exp_images)
-                mae_loss = nn.L1Loss()
-                bcelog_loss = nn.BCEWithLogitsLoss()
+                mae_loss = nn.L1Loss(reduction='sum')
+                #bcelog_loss = nn.BCEWithLogitsLoss()
 
                 if (epoch+1 >= 15) and (ps == 256):
                     # Adversarial Loss (only for 256 patches
                     # _, y_pred_2 = net(exp_images)
-                    y_pred_2 = [Y.detach() for Y in y_pred.values()]
-                    disc_fake = net_D(y_pred_2[-1])
+                    #y_pred_2 = [Y.detach() for Y in y_pred.values()]
+                    #disc_fake = net_D(y_pred_2[-1])
                     # disc_fake = net_D(y_pred['subnet_16'].detach())
-                    fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
-                    disc_real = net_D(G_pyramid['level1'])
-                    real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
-                    disc_loss = (fake_loss + real_loss) / 2
+                    #fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
+                    #disc_real = net_D(G_pyramid['level1'])
+                    #real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
+
+                    DL = DiscriminatorLoss(net_d=net_D, device=device)
+                    real_loss, fake_loss = DL(G_pyramid['level1'], y_pred['subnet_16'])
+                    disc_loss = (fake_loss + real_loss) #/ 2
 
                     # DISCRIMINATOR TRAINING
                     d_optimizer.zero_grad()
                     disc_loss.backward(retain_graph=True)
                     d_optimizer.step()
 
-                    disc_adv = net_D(y_pred['subnet_16'])
-                    adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
+                    #disc_adv = net_D(y_pred['subnet_16'])
+                    #adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
+                    adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device)
 
                 else:
 
@@ -139,20 +144,21 @@ def train_net(net,
 
 
                 # Generator Loss
-                loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
+                loss_generator = (4 * mae_loss(y_pred['subnet_24_1'],
                                               F.interpolate(G_pyramid['level4'],
                                                             (y_pred['subnet_24_1'].shape[2],
-                                                             y_pred['subnet_24_1'].shape[3]))) + \
+                                                             y_pred['subnet_24_1'].shape[3]))) +
                                  2 * mae_loss(y_pred['subnet_24_2'],
                                               F.interpolate(G_pyramid['level3'],
                                                             (y_pred['subnet_24_2'].shape[2],
-                                                             y_pred['subnet_24_2'].shape[3]))) + \
+                                                             y_pred['subnet_24_2'].shape[3]))) +
                                  mae_loss(y_pred['subnet_24_3'], F.interpolate(G_pyramid['level2'],
                                                             (y_pred['subnet_24_3'].shape[2],
-                                                             y_pred['subnet_24_3'].shape[3]))) + \
+                                                             y_pred['subnet_24_3'].shape[3]))) +
                                  mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
                                                             (y_pred['subnet_16'].shape[2],
-                                                             y_pred['subnet_16'].shape[3]))) + adv_loss
+                                                             y_pred['subnet_16'].shape[3]))))/y_pred['subnet_16'].shape[0] \
+                                 + adv_loss
 
                 #GENERATOR TRAINING
                 g_optimizer.zero_grad()
