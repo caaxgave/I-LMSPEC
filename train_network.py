@@ -118,7 +118,7 @@ def train_net(net,
                 #bcelog_loss = nn.BCEWithLogitsLoss()
                 g_pyramid = [t for t in G_pyramid.values()]
 
-                if (epoch+1 >= 15) and (ps == 256):
+                if (epoch+1 >= 1) and (ps == 256):
 
                     # Adversarial Loss (only for 256 patches
                     #_, y_pred_2 = net(exp_images)
@@ -143,6 +143,7 @@ def train_net(net,
                     #disc_adv = net_D(y_pred['subnet_16'])
                     #adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
                     #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device)
+                    y_pred = [y for y in y_pred.values()]
                     rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake, withoutadvloss=False)
 
 
