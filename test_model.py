@@ -69,7 +69,7 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
-    net = Generator(n_channels=3, device=device, bilinear=False)
+    net = Generator(n_channels=3, device=device, bilinear=True)
 
     logging.info(f'Loading model {opt.model}')
     logging.info(f'Using device {device}')
