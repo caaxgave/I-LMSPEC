@@ -116,7 +116,7 @@ def train_net(net,
                 y_pred = [y for y in y_pred.values()]
                 #mae_loss = nn.L1Loss(reduction='sum')
                 #bcelog_loss = nn.BCEWithLogitsLoss()
-                print(G_pyramid.keys())
+                print(len(G_pyramid.values()))
                 assert False
                 g_pyramid = [t for t in G_pyramid.values()]
                 g_pyramid = g_pyramid.reverse()
