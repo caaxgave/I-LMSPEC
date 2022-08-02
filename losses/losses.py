@@ -15,10 +15,6 @@ class PyrLoss (nn.Module):
     def forward(self,Y_list, T_list):
         n = len(Y_list)
         loss = 0
-        print(len(Y_list))
-        print(len(T_list))
-        print(Y_list[0].shape())
-        print(T_list[0].shape())
         for m in range(0, n-1):
             loss += self.weight*(2**(n-m-2)) *\
                     self.criterion(Y_list[m], F.interpolate(T_list[m],(Y_list[m].shape[2],Y_list[m].shape[3]),
