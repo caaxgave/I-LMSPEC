@@ -151,7 +151,7 @@ def train_net(net,
                     disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                    #adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     rec_loss, pyr_loss, loss_generator = gen_loss(y_pred, g_pyramid, withoutadvloss=True)
 
 
