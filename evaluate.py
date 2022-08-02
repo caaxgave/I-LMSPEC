@@ -46,15 +46,15 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
             loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
                                           F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
                                                                               y_pred['subnet_24_1'].shape[3]),
-                                                        mode='bilinear', align_corners='True')) + \
+                                                        mode='bilinear', align_corners=True)) + \
                              2 * mae_loss(y_pred['subnet_24_2'],
                                           F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
                                                                               y_pred['subnet_24_2'].shape[3]),
-                                                        mode='bilinear', align_corners='True')) + \
+                                                        mode='bilinear', align_corners=True)) + \
                              mae_loss(y_pred['subnet_24_3'],
                                       F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
                                                                           y_pred['subnet_24_3'].shape[3]),
-                                                    mode='bilinear', align_corners='True')) + \
+                                                    mode='bilinear', align_corners=True)) + \
                              mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
             val_loss_generator += loss_generator
