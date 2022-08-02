@@ -137,7 +137,7 @@ def train_net(net,
 
                     # DISCRIMINATOR TRAINING
                     d_optimizer.zero_grad()
-                    disc_loss.backward(retain_graph=True)
+                    disc_loss.backward()
                     d_optimizer.step()
 
                     #disc_adv = net_D(y_pred['subnet_16'])
