@@ -30,7 +30,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
             laplacian_pyr, y_pred = net(exp_images)
 
             y_pred = [y for y in y_pred.values()]
-            g_pyramid = [t for t in G_pyramid.values()]
+            g_pyramid = [t for t in G_pyramid.values()].reverse()
 
             if (epoch + 1 >= 15) and (ps == 256):
 

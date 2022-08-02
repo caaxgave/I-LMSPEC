@@ -116,7 +116,7 @@ def train_net(net,
                 y_pred = [y for y in y_pred.values()]
                 #mae_loss = nn.L1Loss(reduction='sum')
                 #bcelog_loss = nn.BCEWithLogitsLoss()
-                g_pyramid = [t for t in G_pyramid.values()]
+                g_pyramid = [t for t in G_pyramid.values()].reverse()
 
                 if (epoch+1 >= 15) and (ps == 256):
 
