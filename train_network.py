@@ -148,7 +148,7 @@ def train_net(net,
 
                 else:
 
-                    #disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     #real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     #fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
                     #adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
