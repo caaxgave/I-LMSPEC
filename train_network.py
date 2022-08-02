@@ -121,6 +121,9 @@ def train_net(net,
                 print(type(g_pyramid))
                 print(len(g_pyramid))
                 print(g_pyramid[0].shape)
+                print(g_pyramid[1].shape)
+                print(g_pyramid[2].shape)
+                print(g_pyramid[3].shape)
                 assert False
 
                 if (epoch+1 >= 15) and (ps == 256):
