@@ -30,24 +30,16 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
             laplacian_pyr, y_pred = net(exp_images)
 
             y_pred = [y for y in y_pred.values()]
-            g_pyramid = [t for t in G_pyramid.values()].reverse()
+            g_pyramid = [t for t in G_pyramid.values()]
 
             if (epoch + 1 >= 15) and (ps == 256):
 
-                y_pred_2 = [Y.detach() for Y in y_pred]
-                disc_fake = net_D(y_pred_2[-1])
-
-                disc_real = net_D(g_pyramid[-1])
-
-                disc_loss = discriminator_loss(disc_fake, disc_real)
+                disc_fake = net_D(y_pred[-1])
                 rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake,
                                                                         withoutadvloss=False)
-
-
             else:
 
                 rec_loss, pyr_loss, loss_generator = gen_loss(y_pred, g_pyramid, withoutadvloss=True)
-
 
             val_loss_generator += loss_generator
 
