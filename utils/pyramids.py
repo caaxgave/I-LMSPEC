@@ -104,10 +104,15 @@ class GaussianPyramid(nn.Module):
                 G = cv2.pyrDown(G)
                 gp.append(transform(G))
 
-            G0.append(gp[0])
-            G1.append(gp[1])
-            G2.append(gp[2])
-            G3.append(gp[3])
+            # G0.append(gp[0])
+            # G1.append(gp[1])
+            # G2.append(gp[2])
+            # G3.append(gp[3])
+
+            G0.append(gp[3])
+            G1.append(gp[2])
+            G2.append(gp[1])
+            G3.append(gp[0])
 
         pyramids_dir["level1"], pyramids_dir["level2"] = torch.stack(G0, dim=0), torch.stack(G1, dim=0)
         pyramids_dir["level3"], pyramids_dir["level4"] = torch.stack(G2, dim=0), torch.stack(G3, dim=0)
