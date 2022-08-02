@@ -137,12 +137,13 @@ def train_net(net,
 
                     # DISCRIMINATOR TRAINING
                     d_optimizer.zero_grad()
-                    disc_loss.backward()
+                    disc_loss.backward(retain_graph=True)
                     d_optimizer.step()
 
                     #disc_adv = net_D(y_pred['subnet_16'])
                     #adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
                     #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device)
+                    disc_fake = net_D(y_pred[-1])
                     rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake, withoutadvloss=False)
 
 
