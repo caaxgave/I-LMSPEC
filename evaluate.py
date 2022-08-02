@@ -5,13 +5,15 @@ from losses.discriminator_loss import DiscriminatorLoss
 from losses.discriminator_loss import adversarial_loss
 from tqdm import tqdm
 from utils.pyramids import GaussianPyramid
+from losses.losses import GeneratorLoss, DiscLoss
 
 
 def evaluate(epoch, net, net_D, dataloader, device, ps):
     net.eval()
     num_val_batches = len(dataloader)
     val_loss_generator = 0
-
+    discriminator_loss = DiscLoss()
+    gen_loss = GeneratorLoss(size=ps)
     # iterate over the validation set
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation round', unit='batch', leave=False):
         exp_images, gt_images = batch['exp_image'], batch['gt_image']
@@ -27,35 +29,27 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
 
             laplacian_pyr, y_pred = net(exp_images)
 
-            mae_loss = nn.L1Loss(reduction='sum')
-            # bcelog_loss = nn.BCEWithLogitsLoss()
+            y_pred = [y for y in y_pred.values()]
+            g_pyramid = [t for t in G_pyramid.values()]
 
             if (epoch + 1 >= 15) and (ps == 256):
 
-                adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device)
+                y_pred_2 = [Y.detach() for Y in y_pred]
+                disc_fake = net_D(y_pred_2[-1])
+
+                disc_real = net_D(g_pyramid[-1])
+
+                disc_loss = discriminator_loss(disc_fake, disc_real)
+                rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake,
+                                                                        withoutadvloss=False)
+
 
             else:
 
-                adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                rec_loss, pyr_loss, loss_generator = gen_loss(y_pred, g_pyramid, withoutadvloss=True)
 
-            # Generator Loss
-            C = (ps ** 2) * 3
-            W = (ps ** 2) * 12
-            val_loss_generator += (1/C)*((4 * mae_loss(y_pred['subnet_24_1'],
-                                              F.interpolate(G_pyramid['level4'],
-                                                            (y_pred['subnet_24_1'].shape[2],
-                                                             y_pred['subnet_24_1'].shape[3]))) +
-                                 2 * mae_loss(y_pred['subnet_24_2'],
-                                              F.interpolate(G_pyramid['level3'],
-                                                            (y_pred['subnet_24_2'].shape[2],
-                                                             y_pred['subnet_24_2'].shape[3]))) +
-                                 mae_loss(y_pred['subnet_24_3'], F.interpolate(G_pyramid['level2'],
-                                                            (y_pred['subnet_24_3'].shape[2],
-                                                             y_pred['subnet_24_3'].shape[3]))) +
-                                 mae_loss(y_pred['subnet_16'], F.interpolate(G_pyramid['level1'],
-                                                            (y_pred['subnet_16'].shape[2],
-                                                             y_pred['subnet_16'].shape[3]))))/y_pred['subnet_16'].shape[0] \
-                                 + W*adv_loss)
+
+            val_loss_generator += loss_generator
 
     net.train()
 
