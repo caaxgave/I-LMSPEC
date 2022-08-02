@@ -143,7 +143,6 @@ def train_net(net,
                     #disc_adv = net_D(y_pred['subnet_16'])
                     #adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
                     #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device)
-                    y_pred = [y for y in y_pred.values()]
                     rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake, withoutadvloss=False)
 
 
