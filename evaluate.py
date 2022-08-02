@@ -29,17 +29,33 @@ def evaluate(epoch, net, net_D, dataloader, device, ps):
 
             laplacian_pyr, y_pred = net(exp_images)
 
-            y_pred = [y for y in y_pred.values()]
-            g_pyramid = [t for t in G_pyramid.values()]
+            # Critertions for Losses:
+            mae_loss = nn.L1Loss()
+            bcelog_loss = nn.BCEWithLogitsLoss()  # This already includes sigmoid
 
             if (epoch + 1 >= 15) and (ps == 256):
 
-                disc_fake = net_D(y_pred[-1])
-                rec_loss, pyr_loss, adv_loss, loss_generator = gen_loss(y_pred, g_pyramid, disc_fake,
-                                                                        withoutadvloss=False)
-            else:
+                # Adversarial Loss (only for 256 patches
+                disc_adv = net_D(y_pred['subnet_16'])
+                adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
-                rec_loss, pyr_loss, loss_generator = gen_loss(y_pred, g_pyramid, withoutadvloss=True)
+            else:
+                adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+
+            # Generator Loss
+            loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
+                                          F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
+                                                                              y_pred['subnet_24_1'].shape[3]),
+                                                        mode='bilinear', align_corners='True')) + \
+                             2 * mae_loss(y_pred['subnet_24_2'],
+                                          F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
+                                                                              y_pred['subnet_24_2'].shape[3]),
+                                                        mode='bilinear', align_corners='True')) + \
+                             mae_loss(y_pred['subnet_24_3'],
+                                      F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
+                                                                          y_pred['subnet_24_3'].shape[3]),
+                                                    mode='bilinear', align_corners='True')) + \
+                             mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
             val_loss_generator += loss_generator
 
