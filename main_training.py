@@ -6,8 +6,15 @@ import sys
 from train_network import *
 from losses.discriminator import Discriminator
 from generator import Generator
+import torch.nn as nn
 import wandb
 from tqdm import tqdm
+
+
+def weights_init(m):
+    if isinstance(m, (nn.Conv2d, nn.Linear)):
+        nn.init.kaiming_normal_(m.weight, mode='fan_in')
+        nn.init.constant_(m.bias, 0.0)
 
 
 def get_args():
@@ -63,6 +70,7 @@ if opt.load_model:
     logging.info(f'Model loaded from {opt.load_model}')
 else:
     print('Creating the generator model...\n')
+    net.apply(weights_init)
 
 if opt.with_discriminator:
     if opt.load_D_model:
@@ -71,6 +79,7 @@ if opt.with_discriminator:
         logging.info(f'Model loaded from {opt.load_D_model}')
     else:
         print('Creating the discriminator model...\n')
+        net_D.apply(weights_init)
 
 net.to(device=device)
 net_D.to(device=device)
@@ -86,13 +95,13 @@ for ps in patch_sizes:
     if ps == 128:
         drop_rate = 20  # drop learning rate
         checkpoint_period = opt.chkpnt_period  # backup every checkpoint_period
-        epochs = 50  # number of epochs for 128x128 case.
+        epochs = 40  # number of epochs for 128x128 case.
         minibatch = 32   # mini-batch size.
 
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
-        epochs = 40  # number of epochs for 128x128 case.
+        epochs = 30  # number of epochs for 128x128 case.
         minibatch = 8  # mini-batch size.
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
