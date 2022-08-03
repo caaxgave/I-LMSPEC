@@ -46,4 +46,6 @@ class Generator(nn.Module):
 
     def initialize_weights(self):
         for m in self.modules():
-            print(m)
+            if isinstance(m, (nn.Conv2d, nn.Linear)):
+                nn.init.kaiming_normal_(m.weight)
+                nn.init.constant_(m.bias, 0.0)
