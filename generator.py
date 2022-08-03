@@ -18,6 +18,8 @@ class Generator(nn.Module):
         self.unet24 = UNet24(n_channels=self.n_channels, bilinear=self.bilinear)
         self.unet24_res = UNet24(n_channels=self.n_channels, res_layer=True, bilinear=self.bilinear)
         self.unet16 = UNet16(n_channels=self.n_channels, res_layer=True, bilinear=self.bilinear)
+
+        self.initialize_weights()
         
     def forward(self, x):
 
@@ -41,3 +43,7 @@ class Generator(nn.Module):
                    'subnet_16': y_hat3}
         
         return L_pyramid, outputs
+
+    def initialize_weights(self):
+        for m in self.modules():
+            print(m)

@@ -11,12 +11,6 @@ import wandb
 from tqdm import tqdm
 
 
-def weights_init(m):
-    if isinstance(m, (nn.Conv2d, nn.Linear)):
-        nn.init.kaiming_normal_(m.weight, mode='fan_in')
-        nn.init.constant_(m.bias, 0.0)
-
-
 def get_args():
     # Adding arguments:
     parser = argparse.ArgumentParser(description='Train the Generator-Unet-like on images')
@@ -70,7 +64,6 @@ if opt.load_model:
     logging.info(f'Model loaded from {opt.load_model}')
 else:
     print('Creating the generator model...\n')
-    net.apply(weights_init)
 
 if opt.with_discriminator:
     if opt.load_D_model:
@@ -79,7 +72,6 @@ if opt.with_discriminator:
         logging.info(f'Model loaded from {opt.load_D_model}')
     else:
         print('Creating the discriminator model...\n')
-        net_D.apply(weights_init)
 
 net.to(device=device)
 net_D.to(device=device)
