@@ -49,7 +49,7 @@ else:
 
 logging.info(f'Using device {device}')
 
-net = Generator(n_channels=3, device=device, bilinear=True)
+net = Generator(n_channels=3, device=device, bilinear=False)
 net_D = Discriminator()
 
 logging.info(f'Network:\n'
@@ -86,13 +86,13 @@ for ps in patch_sizes:
     if ps == 128:
         drop_rate = 20  # drop learning rate
         checkpoint_period = opt.chkpnt_period  # backup every checkpoint_period
-        epochs = 40  # number of epochs for 128x128 case.
+        epochs = 50  # number of epochs for 128x128 case.
         minibatch = 32   # mini-batch size.
 
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
-        epochs = 30  # number of epochs for 128x128 case.
+        epochs = 40  # number of epochs for 128x128 case.
         minibatch = 8  # mini-batch size.
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
