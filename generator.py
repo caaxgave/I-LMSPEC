@@ -46,7 +46,7 @@ class Generator(nn.Module):
 
     def initialize_weights(self):
         for m in self.modules():
-            if isinstance(m, (nn.Conv2d, nn.Linear)):
+            if isinstance(m, (nn.Conv2d, nn.LeakyReLU)):
                 nn.init.kaiming_normal_(m.weight)
 
                 if m.bias is not None:

@@ -93,7 +93,7 @@ for ps in patch_sizes:
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
-        epochs = 30  # number of epochs for 128x128 case.
+        epochs = 30  # number of epochs for 256x256 case.
         minibatch = 8  # mini-batch size.
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
