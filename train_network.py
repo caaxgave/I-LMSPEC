@@ -29,9 +29,9 @@ def train_net(net,
               epochs,
               batch_size,
               learning_rate,
+              learning_rate_d,
               dir_checkpoint,
-              checkpoint_period,
-              amp: bool = False):
+              checkpoint_period):
 
     transforms = T.Compose([
         T.RandomHorizontalFlip(p=1.0),
@@ -54,29 +54,25 @@ def train_net(net,
     # (Initialize logging)
     experiment = wandb.init(project='I-LMSPEC', resume='allow', anonymous='must', reinit=True)
     experiment.config.update(dict(epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
-                                  val_percent="3%", save_checkpoint=dir_checkpoint,
-                                  amp=amp, img_scale=ps), allow_val_change=True)  # img_scale=img_scale was included
+                                  learning_rate_d=learning_rate_d, val_percent="3%", save_checkpoint=dir_checkpoint,
+                                  img_scale=ps), allow_val_change=True)  # img_scale=img_scale was included
 
     logging.info(f'''Starting training:
         Epochs:          {epochs}
         Batch size:      {batch_size}
         Learning rate:   {learning_rate}
+        Learning rate D: {learning_rate_d}
         Training size:   {n_train}
         Validation size: {n_val}
         Checkpoints:     {dir_checkpoint}
         Device:          {device.type}
         Images scaling:  {ps}
-        Mixed Precision: {amp}
     ''')
 
-    # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
-
     g_optimizer = optim.Adam(net.parameters(), lr=learning_rate)
-    d_optimizer = optim.Adam(net_D.parameters(), lr=1e-5)
+    d_optimizer = optim.Adam(net_D.parameters(), lr=learning_rate_d)
     scheduler = optim.lr_scheduler.StepLR(g_optimizer, step_size=drop_rate, gamma=0.5)
     d_scheduler = optim.lr_scheduler.StepLR(d_optimizer, step_size=drop_rate, gamma=0.5)
-    #grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
-    # d_grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     global_step = 0
     dict_losses_list = []
 
@@ -108,55 +104,53 @@ def train_net(net,
                 for pyramid in G_pyramid:
                     G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
-                with torch.cuda.amp.autocast(enabled=amp):
+                laplacian_pyr, y_pred = net(exp_images)
 
-                    laplacian_pyr, y_pred = net(exp_images)
+                # Critertions for Losses:
+                mae_loss = nn.L1Loss()
+                bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
 
-                    # Critertions for Losses:
-                    mae_loss = nn.L1Loss()
-                    bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
+                if (epoch+1 >= 15) and (ps == 256):
 
-                    if (epoch+1 >= 15) and (ps == 256):
+                    # Adversarial Loss (only for 256 patches
+                    #_, y_pred = net(exp_images)
+                    y_pred_2 = [Y.detach() for Y in y_pred.values()]
+                    disc_fake = net_D(y_pred_2[-1])
+                    fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
+                    disc_real = net_D(G_pyramid['level1'])
+                    real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
+                    disc_loss = (fake_loss + real_loss) #/2
 
-                        # Adversarial Loss (only for 256 patches
-                        #_, y_pred = net(exp_images)
-                        y_pred_2 = [Y.detach() for Y in y_pred.values()]
-                        disc_fake = net_D(y_pred_2[-1])
-                        fake_loss = bcelog_loss(disc_fake, torch.zeros_like(disc_fake))
-                        disc_real = net_D(G_pyramid['level1'])
-                        real_loss = bcelog_loss(disc_real, torch.ones_like(disc_real))
-                        disc_loss = (fake_loss + real_loss) #/2
+                    # DISCRIMINATOR TRAINING
+                    d_optimizer.zero_grad()
+                    disc_loss.backward(retain_graph=True)
+                    d_optimizer.step()
 
-                        # DISCRIMINATOR TRAINING
-                        d_optimizer.zero_grad()
-                        disc_loss.backward(retain_graph=True)
-                        d_optimizer.step()
+                    disc_adv = net_D(y_pred['subnet_16'])
+                    adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
-                        disc_adv = net_D(y_pred['subnet_16'])
-                        adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
+                    #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
 
-                        #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
+                else:
+                    disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
-                    else:
-                        disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-                        adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
-
-                    # Generator Loss
-                    loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
-                                                  F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
-                                                                                      y_pred['subnet_24_1'].shape[3]),
-                                                                mode='bilinear', align_corners=True)) + \
-                    2 * mae_loss(y_pred['subnet_24_2'],
-                                 F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
-                                                                     y_pred['subnet_24_2'].shape[3]),
-                                               mode='bilinear', align_corners=True)) + \
-                    mae_loss(y_pred['subnet_24_3'],
-                             F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
-                                                                 y_pred['subnet_24_3'].shape[3]),
+                # Generator Loss
+                loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
+                                              F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
+                                                                                  y_pred['subnet_24_1'].shape[3]),
+                                                            mode='bilinear', align_corners=True)) + \
+                2 * mae_loss(y_pred['subnet_24_2'],
+                             F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
+                                                                 y_pred['subnet_24_2'].shape[3]),
                                            mode='bilinear', align_corners=True)) + \
-                    mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
+                mae_loss(y_pred['subnet_24_3'],
+                         F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
+                                                             y_pred['subnet_24_3'].shape[3]),
+                                       mode='bilinear', align_corners=True)) + \
+                mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
 
                 # GENERATOR TRAINING

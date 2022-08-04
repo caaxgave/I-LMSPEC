@@ -16,8 +16,12 @@ def get_args():
     parser = argparse.ArgumentParser(description='Train the Generator-Unet-like on images')
     parser.add_argument("--exposure_dataset", type=str, default="exposure_dataset/",
                         help="path to folder with patches for training and validation.")
+    parser.add_argument("--epochs_list", "-el", nargs='+', required=True, type=int, default=[40, 30],
+                        help="list with the epochs for: 1)128x128 and 2)256x256, respectively.")
     parser.add_argument('--learning_rate', '-lr', metavar='LR', type=float, default=1e-4,
-                                                 help='Learning rate', dest='lr')
+                                                 help='starting learning rate', dest='lr')
+    parser.add_argument('--learning_rate_d', '-lrd', metavar='LRD', type=float, default=1e-5,
+                        help='Starting learning rate for discriminator', dest='lr_d')
     parser.add_argument('--load_model', type=str, default=None,
                         help='Directory to the generator model to be loaded.')
     parser.add_argument('--load_D_model', type=str, default=None,
@@ -27,9 +31,10 @@ def get_args():
                         help="path for saving checkpoints or for loading model from a .pth file")
     parser.add_argument("--GPU", type=int, default=1,
                         help="Select the device")
-    parser.add_argument("--patch_sizes","-ps", nargs='+', required=True, type=int,
+    parser.add_argument("--patch_sizes","-ps", nargs='+', required=True, type=int, default=[128, 256],
                         help="list with the different size of the patches")
-    parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
+    parser.add_argument("--batch_sizes", "-bs", nargs='+', required=True, type=int, default=[32, 8],
+                        help="list with the different size of the batches")
     parser.add_argument("--with_discriminator", type=bool, default=True,
                         help="Include discriminator loss term?.")
     parser.parse_args()
@@ -77,8 +82,10 @@ net.to(device=device)
 net_D.to(device=device)
 
 dataset_dir = opt.exposure_dataset
+epochs_list = opt.epochs_list
 patch_sizes = opt.patch_sizes
 checkpoint_dir = opt.checkpoint_dir
+batch_sizes = opt.batch_sizes
 
 print('using device:', device)
 
@@ -87,14 +94,14 @@ for ps in patch_sizes:
     if ps == 128:
         drop_rate = 20  # drop learning rate
         checkpoint_period = opt.chkpnt_period  # backup every checkpoint_period
-        epochs = 40  # number of epochs for 128x128 case.
-        minibatch = 64   # mini-batch size.
+        epochs = epochs_list[0]  # number of epochs for 128x128 case.
+        minibatch = batch_sizes[0]   # mini-batch size.
 
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
-        epochs = 30  # number of epochs for 256x256 case.
-        minibatch = 32  # mini-batch size.
+        epochs = epochs_list[1]  # number of epochs for 256x256 case.
+        minibatch = batch_sizes[1]  # mini-batch size.
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
         if opt.load_model:
@@ -121,10 +128,11 @@ for ps in patch_sizes:
                   ps=ps,
                   batch_size=minibatch,
                   learning_rate=opt.lr,
+                  learning_rate_d=opt.lrd,
                   device=device,
                   dir_checkpoint=checkpoint_dir,
-                  checkpoint_period=checkpoint_period,
-                  amp=opt.amp)
+                  checkpoint_period=checkpoint_period)
+
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED_{}.pth'.format(ps))
         torch.save(net_D.state_dict(), 'D_INTERRUPTED_{}.pth'.format(ps))
