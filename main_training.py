@@ -18,9 +18,9 @@ def get_args():
                         help="path to folder with patches for training and validation.")
     parser.add_argument("--epochs_list", "-el", nargs='+', required=True, type=int, default=[40, 30],
                         help="list with the epochs for: 1)128x128 and 2)256x256, respectively.")
-    parser.add_argument('--learning_rate', '-lr', metavar='LR', type=float, default=1e-4,
+    parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4,
                                                  help='starting learning rate', dest='lr')
-    parser.add_argument('--learning_rate_d', '-lrd', metavar='LRD', type=float, default=1e-5,
+    parser.add_argument('--learning_rate_d', '-lrd', type=float, default=1e-5,
                         help='Starting learning rate for discriminator', dest='lr_d')
     parser.add_argument('--load_model', type=str, default=None,
                         help='Directory to the generator model to be loaded.')
