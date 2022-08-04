@@ -91,10 +91,6 @@ batch_sizes = opt.batch_sizes
 
 print('using device:', device)
 
-print(type(epochs_list))
-print(epochs_list)
-assert False
-
 for ps in patch_sizes:
     # Here we are going to consider that we only have 128x128 and 256x256 patches. Thus he have two cases.
     if ps == 128:
