@@ -18,7 +18,7 @@ def get_args():
                         help="path to folder with patches for training and validation.")
     # parser.add_argument("--epochs_list", "-el", nargs='+', required=True, type=int, default=[40, 30],
     #                     help="list with the epochs for: 1)128x128 and 2)256x256, respectively.")
-    parser.add_argument("--epochs_list", "-el", nargs='+', required=True, type=list, default=[40, 30],
+    parser.add_argument("--epochs_list", "-el", type=list, default=[40, 30],
                         help="list with the epochs for: 1)128x128 and 2)256x256, respectively.")
     parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4,
                                                  help='starting learning rate', dest='lr')
@@ -33,9 +33,9 @@ def get_args():
                         help="path for saving checkpoints or for loading model from a .pth file")
     parser.add_argument("--GPU", type=int, default=1,
                         help="Select the device")
-    parser.add_argument("--patch_sizes","-ps", required=True, type=list, default=[128, 256],
+    parser.add_argument("--patch_sizes","-ps", type=list, default=[128, 256],
                         help="list with the different size of the patches")
-    parser.add_argument("--batch_sizes", "-bs", required=True, type=list, default=[32, 8],
+    parser.add_argument("--batch_sizes", "-bs", type=list, default=[32, 8],
                         help="list with the different size of the batches")
     parser.add_argument("--with_discriminator", type=bool, default=True,
                         help="Include discriminator loss term?.")
