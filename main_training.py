@@ -23,7 +23,7 @@ def get_args():
     parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4,
                                                  help='starting learning rate', dest='lr')
     parser.add_argument('--learning_rate_d', '-lrd', type=float, default=1e-5,
-                        help='Starting learning rate for discriminator', dest='lr_d')
+                        help='Starting learning rate for discriminator', dest='lrd')
     parser.add_argument('--load_model', type=str, default=None,
                         help='Directory to the generator model to be loaded.')
     parser.add_argument('--load_D_model', type=str, default=None,
