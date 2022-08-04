@@ -91,8 +91,8 @@ batch_sizes = opt.batch_sizes
 
 print('using device:', device)
 
-print(type(patch_sizes))
-print(patch_sizes)
+print(type(epochs_list))
+print(epochs_list)
 assert False
 
 for ps in patch_sizes:
