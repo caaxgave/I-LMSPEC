@@ -153,7 +153,7 @@ def train_net(net,
                                                              y_pred['subnet_24_3'].shape[3]),
                                        mode='bilinear', align_corners=True)) + \
                 mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + \
-                                 ssim_loss(y_pred['subnet_16'], G_pyramid['level1']).mean(1, True) + adv_loss
+                                 ssim_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
 
 
                 # GENERATOR TRAINING
@@ -168,7 +168,8 @@ def train_net(net,
 
                 if global_step % 50 == 0:
                     train_report = {'epoch': epoch+1, 'step': global_step, 'Generator loss': loss_generator.item(),
-                                    'Discriminator loss': disc_loss.item(), 'Real loss': real_loss.item(),
+                                    'SSIM loss': ssim_loss.item(), 'Discriminator loss': disc_loss.item(),
+                                    'Real loss': real_loss.item(),
                                     'Fake loss': fake_loss.item(), 'lr': g_optimizer.param_groups[0]['lr']}
                     dict_losses_list.append(train_report)
 
@@ -176,6 +177,7 @@ def train_net(net,
                 experiment.log({
                     #'train loss': final_loss.item(),
                     'Generator loss (batch)': loss_generator.item(),
+                    'SSIM loss (batch)': ssim_loss.item(),
                     'Real loss (batch)': real_loss.item(),
                     'Fake loss (batch)': fake_loss.item(),
                     'Discriminator loss (batch)': disc_loss.item(),
