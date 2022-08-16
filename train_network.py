@@ -13,8 +13,9 @@ import pandas as pd
 import torchvision.transforms as T
 from utils.data_loading import ImageDataset
 from utils.pyramids import GaussianPyramid
-from losses.discriminator_loss import DiscriminatorLoss
-from losses.discriminator_loss import adversarial_loss
+#from losses.discriminator_loss import DiscriminatorLoss
+#from losses.discriminator_loss import adversarial_loss
+from losses.losses import SSIMLoss
 from evaluate import evaluate
 from contextlib import contextmanager
 import warnings
@@ -109,6 +110,7 @@ def train_net(net,
                 # Critertions for Losses:
                 mae_loss = nn.L1Loss()
                 bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
+                ssim_loss = SSIMLoss()
 
                 if (epoch+1 >= 15) and (ps == 256):
 
@@ -150,7 +152,8 @@ def train_net(net,
                          F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
                                                              y_pred['subnet_24_3'].shape[3]),
                                        mode='bilinear', align_corners=True)) + \
-                mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + adv_loss
+                mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + \
+                                 ssim_loss(y_pred['subnet_16'], G_pyramid['level1']).mean(1, True) + adv_loss
 
 
                 # GENERATOR TRAINING

@@ -59,7 +59,7 @@ if __name__ == '__main__':
     in_files = opt.input_dir
     out_files = opt.output_dir
 
-    exp_images = os.path.join(in_files, 'Underexposed')
+    exp_images = os.path.join(in_files, 'Overexposed')
     gt_images = os.path.join(in_files, 'Normal_frames')
 
     # Specify device either GPU or CPU
