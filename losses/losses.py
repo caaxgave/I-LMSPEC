@@ -34,9 +34,7 @@ class SSIMLoss(nn.Module):
         SSIM_n = (2 * mu_x * mu_y + self.C1) * (2 * sigma_xy + self.C2)
         SSIM_d = (mu_x ** 2 + mu_y ** 2 + self.C1) * (sigma_x + sigma_y + self.C2)
         output = torch.clamp((1 - SSIM_n / SSIM_d) / 2, 0, 1)
-        perro = torch.mean(output)
-        print(perro)
-        print(perro.item())
+
         return torch.mean(output)
 
 
