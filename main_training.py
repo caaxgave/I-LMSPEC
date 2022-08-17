@@ -98,12 +98,14 @@ for ps in patch_sizes:
         checkpoint_period = opt.chkpnt_period  # backup every checkpoint_period
         epochs = epochs_list[0]  # number of epochs for 128x128 case.
         minibatch = batch_sizes[0]   # mini-batch size.
+        loss_weights = [0.4, 0.2, 0.4, 0.0]
 
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
         epochs = epochs_list[1]  # number of epochs for 256x256 case.
         minibatch = batch_sizes[1]  # mini-batch size.
+        loss_weights = [0.4, 0.2, 0.4, 0.0]
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
         if opt.load_model:
@@ -129,6 +131,7 @@ for ps in patch_sizes:
                   dir_patches=dataset_dir,
                   ps=ps,
                   batch_size=minibatch,
+                  loss_weights=loss_weights,
                   learning_rate=opt.lr,
                   learning_rate_d=opt.lrd,
                   device=device,

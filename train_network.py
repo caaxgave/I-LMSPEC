@@ -29,6 +29,7 @@ def train_net(net,
               ps,
               epochs,
               batch_size,
+              loss_weights,
               learning_rate,
               learning_rate_d,
               dir_checkpoint,
@@ -76,6 +77,7 @@ def train_net(net,
     d_scheduler = optim.lr_scheduler.StepLR(d_optimizer, step_size=drop_rate, gamma=0.5)
     global_step = 0
     dict_losses_list = []
+    alpha, beta, gamma, delta = loss_weights[0], loss_weights[1], loss_weights[2], loss_weights[3]
 
     # 5. Begin training
     for epoch in range(epochs):
@@ -131,7 +133,8 @@ def train_net(net,
                     disc_adv = net_D(y_pred['subnet_16'])
                     adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
-                    #adv_loss = adversarial_loss(net_D, y_pred['subnet_16'], device=device)
+                    #Update delta loss weight for using adv_loss
+                    alpha, beta, gamma, delta = 0.3, 0.1, 0.3, 0.3
 
                 else:
                     disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
@@ -141,21 +144,23 @@ def train_net(net,
 
                 # Generator Loss
                 ssim = ssim_loss(y_pred['subnet_16'], G_pyramid['level1'])
-
-                loss_generator = 4 * mae_loss(y_pred['subnet_24_1'],
-                                              F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
-                                                                                  y_pred['subnet_24_1'].shape[3]),
+                pyr_loss = 4 * mae_loss(y_pred['subnet_24_1'],
+                                          F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
+                                                                              y_pred['subnet_24_1'].shape[3]),
                                                             mode='bilinear', align_corners=True)) + \
-                2 * mae_loss(y_pred['subnet_24_2'],
-                             F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
-                                                                 y_pred['subnet_24_2'].shape[3]),
-                                           mode='bilinear', align_corners=True)) + \
-                mae_loss(y_pred['subnet_24_3'],
-                         F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
-                                                             y_pred['subnet_24_3'].shape[3]),
-                                       mode='bilinear', align_corners=True)) + \
-                mae_loss(y_pred['subnet_16'], G_pyramid['level1']) + ssim + adv_loss
+                           2 * mae_loss(y_pred['subnet_24_2'],
+                                          F.interpolate(G_pyramid['level3'], (y_pred['subnet_24_2'].shape[2],
+                                                                              y_pred['subnet_24_2'].shape[3]),
+                                                            mode='bilinear', align_corners=True)) + \
+                               mae_loss(y_pred['subnet_24_3'],
+                                          F.interpolate(G_pyramid['level2'], (y_pred['subnet_24_3'].shape[2],
+                                                                              y_pred['subnet_24_3'].shape[3]),
+                                                            mode='bilinear', align_corners=True))
 
+                rec_loss = mae_loss(y_pred['subnet_16'], G_pyramid['level1'])
+
+                # Generator loss with weighted losses:
+                loss_generator = alpha*pyr_loss + beta*rec_loss + gamma*ssim + delta*adv_loss
 
                 # GENERATOR TRAINING
                 g_optimizer.zero_grad()
