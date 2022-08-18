@@ -35,6 +35,8 @@ def get_args():
                         help="Select the device")
     parser.add_argument("--patch_sizes","-ps", nargs='+', type=int, default=[128, 256],
                         help="list with the different size of the patches")
+    parser.add_argument("--loss_weights", "-lw", nargs='+', type=float, default=[1.0, 1.0, 1.0, 1.0],
+                        help="list with the loss weights.")
     parser.add_argument("--batch_sizes", "-bs", nargs='+', type=int, default=[32, 8],
                         help="list with the different size of the batches")
     parser.add_argument("--with_discriminator", type=bool, default=True,
@@ -88,6 +90,7 @@ epochs_list = opt.epochs_list
 patch_sizes = opt.patch_sizes
 checkpoint_dir = opt.checkpoint_dir
 batch_sizes = opt.batch_sizes
+loss_weights = opt.loss_weights
 
 print('using device:', device)
 
@@ -98,14 +101,13 @@ for ps in patch_sizes:
         checkpoint_period = opt.chkpnt_period  # backup every checkpoint_period
         epochs = epochs_list[0]  # number of epochs for 128x128 case.
         minibatch = batch_sizes[0]   # mini-batch size.
-        loss_weights = [0.4, 0.2, 0.4, 0.0]
+
 
     elif ps == 256:
         drop_rate = 10  # drop learning rate
         checkpoint_period = opt.chkpnt_period//2  # backup every checkpoint_period
         epochs = epochs_list[1]  # number of epochs for 256x256 case.
         minibatch = batch_sizes[1]  # mini-batch size.
-        loss_weights = [0.4, 0.2, 0.4, 0.0]
         from_chkpoint = os.path.join(checkpoint_dir, 'main_net', 'model_128.pth')
         #D_from_chkpoint = os.path.join(checkpoint_dir, 'disc_net', 'D_model_128.pth')
         if opt.load_model:

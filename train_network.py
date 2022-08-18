@@ -57,7 +57,7 @@ def train_net(net,
     experiment = wandb.init(project='I-LMSPEC', resume='allow', anonymous='must', reinit=True)
     experiment.config.update(dict(epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
                                   learning_rate_d=learning_rate_d, val_percent="3%", save_checkpoint=dir_checkpoint,
-                                  img_scale=ps), allow_val_change=True)  # img_scale=img_scale was included
+                                  img_scale=ps, loss_weights=loss_weights), allow_val_change=True)  # img_scale=img_scale was included
 
     logging.info(f'''Starting training:
         Epochs:          {epochs}
@@ -132,9 +132,6 @@ def train_net(net,
 
                     disc_adv = net_D(y_pred['subnet_16'])
                     adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
-
-                    #Update delta loss weight for using adv_loss
-                    alpha, beta, gamma, delta = 0.3, 0.1, 0.3, 0.3
 
                 else:
                     disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
