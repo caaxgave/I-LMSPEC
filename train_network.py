@@ -173,7 +173,7 @@ def train_net(net,
                     torch.pow(torch.sqrt(target_hist) - torch.sqrt(input_hist), 2)))) / input_hist.shape[0])
 
                 # Generator loss with weighted losses:
-                loss_generator = alpha*pyr_loss + beta*rec_loss + gamma*ssim + delta*adv_loss + epsilon*histo_loss
+                loss_generator = alpha*pyr_loss + beta*rec_loss + gamma*ssim + delta*histo_loss + epsilon*adv_loss
 
                 # GENERATOR TRAINING
                 g_optimizer.zero_grad()

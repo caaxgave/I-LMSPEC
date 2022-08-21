@@ -60,7 +60,7 @@ if __name__ == '__main__':
     in_files = opt.input_dir
     out_files = opt.output_dir
 
-    exp_images = os.path.join(in_files, 'Overexposed')
+    exp_images = os.path.join(in_files, 'Underexposed')
     gt_images = os.path.join(in_files, 'Normal_frames')
 
     # Specify device either GPU or CPU
@@ -91,6 +91,9 @@ if __name__ == '__main__':
         logging.info(f'\nPredicting image {filename} ...')
         img = Image.open(os.path.join(exp_images, filename))
         gt = Image.open(os.path.join(gt_images, filename))
+        loader = T.Compose([T.ToTensor()])
+        gt = loader(gt).unsqueeze(0)
+        gt= gt.to(device, torch.float)
 
         lp_pyr, y_pred = predict_img(net=net,
                                      full_img=img,
