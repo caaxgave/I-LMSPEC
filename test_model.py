@@ -5,6 +5,7 @@ import torch
 import torchvision.transforms as T
 from torchvision.utils import save_image
 from PIL import Image
+from losses.losses import RGBuvHistBlock
 from generator import Generator
 from contextlib import contextmanager
 import wandb
@@ -95,21 +96,36 @@ if __name__ == '__main__':
                                      full_img=img,
                                      device=device)
 
+        # Input params. for histLoss
+        intensity_scale = True
+        histogram_size = 128
+        max_input_size = 512
+        method = 'inverse-quadratic'  # options:'thresholding','RBF','inverse-quadratic'
+
+        histogram_block = RGBuvHistBlock(insz=max_input_size, h=histogram_size, intensity_scale=intensity_scale,
+                                         method=method,
+                                         device=device)
+        input_hist = histogram_block(y_pred['subnet_16'])
+        target_hist = histogram_block(gt)
+
         # INPUT AND PYRAMID LOGS
         with all_logging_disabled():
             experiment.log({
                 'Input Patch': [wandb.Image(img, caption='Exposed patch'),
                                 wandb.Image(gt, caption='GT patch')
                                 ],
+                'Predictions': [wandb.Image(y_pred['subnet_24_1'], caption='subnet_24_1'),
+                                wandb.Image(y_pred['subnet_24_2'], caption='subnet_24_2'),
+                                wandb.Image(y_pred['subnet_24_3'], caption='subnet_24_3'),
+                                wandb.Image(y_pred['subnet_16'], caption='subnet_16')],
                 'Laplacian Pyr': [wandb.Image(lp_pyr['level4'], caption='Level 4'),
                                   wandb.Image(lp_pyr['level3'], caption='Level 3'),
                                   wandb.Image(lp_pyr['level2'], caption='Level 2'),
                                   wandb.Image(lp_pyr['level1'], caption='Level 1')
                                   ],
-                'Predictions': [wandb.Image(y_pred['subnet_24_1'], caption='subnet_24_1'),
-                                wandb.Image(y_pred['subnet_24_2'], caption='subnet_24_2'),
-                                wandb.Image(y_pred['subnet_24_3'], caption='subnet_24_3'),
-                                wandb.Image(y_pred['subnet_16'], caption='subnet_16')]
+                'Histogram': [wandb.Image(input_hist, caption='Input Hist'),
+                                wandb.Image(target_hist, caption='Target Hist')
+                                ]
             })
 
         original_name = os.path.split(filename)[1]

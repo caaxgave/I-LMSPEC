@@ -35,7 +35,7 @@ def get_args():
                         help="Select the device")
     parser.add_argument("--patch_sizes","-ps", nargs='+', type=int, default=[128, 256],
                         help="list with the different size of the patches")
-    parser.add_argument("--loss_weights", "-lw", nargs='+', type=float, default=[1.0, 1.0, 1.0, 1.0],
+    parser.add_argument("--loss_weights", "-lw", nargs='+', type=float, default=[1.0, 1.0, 1.0, 1.0, 1.0],
                         help="list with the loss weights.")
     parser.add_argument("--batch_sizes", "-bs", nargs='+', type=int, default=[32, 8],
                         help="list with the different size of the batches")
