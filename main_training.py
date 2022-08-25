@@ -3,6 +3,9 @@
 import argparse
 import cv2
 import sys
+
+import torch
+
 from train_network import *
 from losses.discriminator import Discriminator
 from generator import Generator
@@ -82,8 +85,8 @@ if opt.with_discriminator:
     else:
         print('Creating the discriminator model...\n')
 
-net.to(device=device)
-net_D.to(device=device)
+net.to(device=device, dtype=torch.float64)
+net_D.to(device=device, dtype=torch.float64)
 
 dataset_dir = opt.exposure_dataset
 epochs_list = opt.epochs_list
