@@ -146,8 +146,8 @@ class RGBuvHistBlock(nn.Module):
                 diff_u1 = 1 / (1 + diff_u1)  # Inverse quadratic
                 diff_v1 = 1 / (1 + diff_v1)
 
-            diff_u1 = diff_u1.type(torch.float32)
-            diff_v1 = diff_v1.type(torch.float32)
+            diff_u1 = diff_u1.type(torch.float64)
+            diff_v1 = diff_v1.type(torch.float64)
             a = torch.t(Iy * diff_u1)
             hists[l, 1, :, :] = torch.mm(a, diff_v1)
 
