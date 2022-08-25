@@ -112,7 +112,7 @@ def train_net(net,
                 G_pyramid = GP(gt_images)
 
                 for pyramid in G_pyramid:
-                    G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float64)
+                    G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
 
                 laplacian_pyr, y_pred = net(exp_images)
 
@@ -145,10 +145,10 @@ def train_net(net,
                     adv_loss = bcelog_loss(disc_adv, torch.ones_like(disc_adv))
 
                 else:
-                    disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float64)
-                    real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float64)
-                    fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float64)
-                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float64)
+                    disc_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    real_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    fake_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
+                    adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
                 # COMPUTING LOSSES
                 ssim = ssim_loss(y_pred['subnet_16'], G_pyramid['level1'])

@@ -85,8 +85,8 @@ if opt.with_discriminator:
     else:
         print('Creating the discriminator model...\n')
 
-net.to(device=device, dtype=torch.float64)
-net_D.to(device=device, dtype=torch.float64)
+net.to(device=device)
+net_D.to(device=device)
 
 dataset_dir = opt.exposure_dataset
 epochs_list = opt.epochs_list

@@ -26,7 +26,7 @@ class Generator(nn.Module):
         L_pyramid = self.LP(x)
         
         for pyramid in L_pyramid:
-            L_pyramid[pyramid] = L_pyramid[pyramid].to(device=self.device, dtype=torch.float64)
+            L_pyramid[pyramid] = L_pyramid[pyramid].to(device=self.device, dtype=torch.float32)
         
         x0 = L_pyramid['level4']
         y_hat0 = self.unet24(x0)

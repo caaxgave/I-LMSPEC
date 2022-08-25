@@ -112,8 +112,8 @@ class RGBuvHistBlock(nn.Module):
                 raise Exception(
                     f'Wrong kernel method. It should be either thresholding, RBF,'
                     f' inverse-quadratic. But the given value is {self.method}.')
-            diff_u0 = diff_u0.type(torch.float64)
-            diff_v0 = diff_v0.type(torch.float64)
+            diff_u0 = diff_u0.type(torch.float32)
+            diff_v0 = diff_v0.type(torch.float32)
             a = torch.t(Iy * diff_u0)
             hists[l, 0, :, :] = torch.mm(a, diff_v0)
 
@@ -146,8 +146,8 @@ class RGBuvHistBlock(nn.Module):
                 diff_u1 = 1 / (1 + diff_u1)  # Inverse quadratic
                 diff_v1 = 1 / (1 + diff_v1)
 
-            diff_u1 = diff_u1.type(torch.float64)
-            diff_v1 = diff_v1.type(torch.float64)
+            diff_u1 = diff_u1.type(torch.float32)
+            diff_v1 = diff_v1.type(torch.float32)
             a = torch.t(Iy * diff_u1)
             hists[l, 1, :, :] = torch.mm(a, diff_v1)
 
@@ -178,8 +178,8 @@ class RGBuvHistBlock(nn.Module):
                                     2) / self.sigma ** 2
                 diff_u2 = 1 / (1 + diff_u2)  # Inverse quadratic
                 diff_v2 = 1 / (1 + diff_v2)
-            diff_u2 = diff_u2.type(torch.float64)
-            diff_v2 = diff_v2.type(torch.float64)
+            diff_u2 = diff_u2.type(torch.float32)
+            diff_v2 = diff_v2.type(torch.float32)
             a = torch.t(Iy * diff_u2)
             hists[l, 2, :, :] = torch.mm(a, diff_v2)
 

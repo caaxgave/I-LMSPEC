@@ -17,7 +17,7 @@ def predict_img(net,
     net.eval()
     transform = T.ToTensor()
     img = transform(full_img)
-    img = img.to(device=device, dtype=torch.float64)
+    img = img.to(device=device, dtype=torch.float32)
 
     outputs = []
 
