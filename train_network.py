@@ -112,7 +112,7 @@ def train_net(net,
                 G_pyramid = GP(gt_images)
 
                 for pyramid in G_pyramid:
-                    G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float32)
+                    G_pyramid[pyramid] = G_pyramid[pyramid].to(device=device, dtype=torch.float64)
 
                 laplacian_pyr, y_pred = net(exp_images)
 
