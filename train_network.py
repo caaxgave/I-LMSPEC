@@ -54,7 +54,7 @@ def train_net(net,
     val_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True)
 
     # (Initialize logging)
-    experiment = wandb.init(entity='cv-inside', project='I-LMSPEC', resume='allow', anonymous='must', reinit=True)
+    experiment = wandb.init(entity='cv_inside', project='I-LMSPEC', resume='allow', anonymous='must', reinit=True)
     experiment.config.update(dict(epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
                                   learning_rate_d=learning_rate_d, val_percent="3%", save_checkpoint=dir_checkpoint,
                                   img_scale=ps, loss_weights=loss_weights), allow_val_change=True)  # img_scale=img_scale was included
