@@ -1,17 +1,10 @@
 # Main script for training.
 
 import argparse
-import cv2
 import sys
-
-import torch
-
 from train_network import *
 from losses.discriminator import Discriminator
 from generator import Generator
-import torch.nn as nn
-import wandb
-from tqdm import tqdm
 
 
 def get_args():
