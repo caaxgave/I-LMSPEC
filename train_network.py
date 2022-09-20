@@ -77,14 +77,16 @@ def train_net(net,
     d_scheduler = optim.lr_scheduler.StepLR(d_optimizer, step_size=drop_rate, gamma=0.5)
     global_step = 0
     dict_losses_list = []
-    alpha, beta, gamma, delta = loss_weights[0], loss_weights[1], loss_weights[2], loss_weights[3]
-    epsilon = loss_weights[4]
+    #alpha, beta, gamma, delta = loss_weights[0], loss_weights[1], loss_weights[2], loss_weights[3]
+    #epsilon = loss_weights[4]
+
+    alpha, beta, gamma, epsilon = loss_weights[0], loss_weights[1], loss_weights[2], loss_weights[3]
 
     # Input params. for histLoss
-    intensity_scale = True
-    histogram_size = 128
-    max_input_size = 512
-    method = 'inverse-quadratic'  # options:'thresholding','RBF','inverse-quadratic'
+    #intensity_scale = True
+    #histogram_size = 128
+    #max_input_size = 512
+    #method = 'inverse-quadratic'  # options:'thresholding','RBF','inverse-quadratic'
 
     # 5. Begin training
     for epoch in range(epochs):
@@ -121,9 +123,9 @@ def train_net(net,
                 bcelog_loss = nn.BCEWithLogitsLoss()   # This already includes sigmoid
                 ssim_loss = SSIMLoss()
                 # create a histogram block
-                histogram_block = RGBuvHistBlock(insz=max_input_size, h=histogram_size, intensity_scale=intensity_scale,
-                                                 method=method,
-                                                 device=device)
+                #histogram_block = RGBuvHistBlock(insz=max_input_size, h=histogram_size, intensity_scale=intensity_scale,
+                #                                 method=method,
+                #                                 device=device)
 
                 if (epoch+1 >= 15) and (ps == 256):
 
@@ -167,13 +169,13 @@ def train_net(net,
 
                 rec_loss = mae_loss(y_pred['subnet_16'], G_pyramid['level1'])
 
-                input_hist = histogram_block(y_pred['subnet_16'])
-                target_hist = histogram_block(G_pyramid['level1'])
-                histo_loss = (1 / np.sqrt(2.0) * (torch.sqrt(torch.sum(
-                    torch.pow(torch.sqrt(target_hist) - torch.sqrt(input_hist), 2)))) / input_hist.shape[0])
+                #input_hist = histogram_block(y_pred['subnet_16'])
+                #target_hist = histogram_block(G_pyramid['level1'])
+                #histo_loss = (1 / np.sqrt(2.0) * (torch.sqrt(torch.sum(
+                #    torch.pow(torch.sqrt(target_hist) - torch.sqrt(input_hist), 2)))) / input_hist.shape[0])
 
                 # Generator loss with weighted losses:
-                loss_generator = alpha*pyr_loss + beta*rec_loss + gamma*ssim + delta*histo_loss + epsilon*adv_loss
+                loss_generator = alpha*pyr_loss + beta*rec_loss + gamma*ssim + epsilon*adv_loss
 
                 # GENERATOR TRAINING
                 g_optimizer.zero_grad()
@@ -186,7 +188,8 @@ def train_net(net,
 
                 if global_step % 50 == 0:
                     train_report = {'epoch': epoch+1, 'step': global_step, 'Generator loss': loss_generator.item(),
-                                    'SSIM loss': ssim.item(), 'Histo loss': histo_loss.item(),
+                                    'SSIM loss': ssim.item(),
+                                    #'Histo loss': histo_loss.item(),
                                     'Discriminator loss': disc_loss.item(), 'Real loss': real_loss.item(),
                                     'Fake loss': fake_loss.item(), 'lr': g_optimizer.param_groups[0]['lr']}
                     dict_losses_list.append(train_report)
@@ -196,7 +199,7 @@ def train_net(net,
                     #'train loss': final_loss.item(),
                     'Generator loss (batch)': loss_generator.item(),
                     'SSIM loss (batch)': ssim.item(),
-                    'Histo loss (batch)': histo_loss.item(),
+                    #'Histo loss (batch)': histo_loss.item(),
                     'Real loss (batch)': real_loss.item(),
                     'Fake loss (batch)': fake_loss.item(),
                     'Discriminator loss (batch)': disc_loss.item(),
@@ -242,7 +245,7 @@ def train_net(net,
                             histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
                             histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
-                        val_score = evaluate(epoch, net, net_D, val_loader, device, ps)
+                        val_score = evaluate(epoch, net, net_D, val_loader, device, ps, loss_weights)
                         # scheduler.step(val_score)
                         # scheduler.step()
                         # d_scheduler.step()
