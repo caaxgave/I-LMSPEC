@@ -55,7 +55,7 @@ else:
 
 logging.info(f'Using device {device}')
 
-net = Generator(n_channels=3, device=device, bilinear=False)
+net = Generator(n_channels=3, device=device, bilinear=False) #
 net_D = Discriminator()
 
 logging.info(f'Network:\n'
