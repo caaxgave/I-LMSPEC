@@ -34,7 +34,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps, loss_weights):
             # Critertions for Losses:
             mae_loss = nn.L1Loss()
             bcelog_loss = nn.BCEWithLogitsLoss()  # This already includes sigmoid
-            #ssim_loss = SSIMLoss()
+            ssim_loss = SSIMLoss()
             # create a histogram block
             # histogram_block = RGBuvHistBlock(insz=max_input_size, h=histogram_size, intensity_scale=intensity_scale,
             #                                 method=method,
@@ -58,7 +58,7 @@ def evaluate(epoch, net, net_D, dataloader, device, ps, loss_weights):
                 adv_loss = torch.tensor([[0]]).to(device=device, dtype=torch.float32)
 
             # COMPUTING LOSSES
-            #ssim = ssim_loss(y_pred['subnet_16'], G_pyramid['level1'])
+            ssim = ssim_loss(y_pred['subnet_16'], G_pyramid['level1'])
             pyr_loss = 4 * mae_loss(y_pred['subnet_24_1'],
                                     F.interpolate(G_pyramid['level4'], (y_pred['subnet_24_1'].shape[2],
                                                                         y_pred['subnet_24_1'].shape[3]),
@@ -80,8 +80,8 @@ def evaluate(epoch, net, net_D, dataloader, device, ps, loss_weights):
             #    torch.pow(torch.sqrt(target_hist) - torch.sqrt(input_hist), 2)))) / input_hist.shape[0])
 
             # Generator loss with weighted losses:
-            #loss_generator = alpha * pyr_loss + beta * rec_loss + gamma * ssim + epsilon * adv_loss
-            loss_generator = alpha * pyr_loss + beta * rec_loss + epsilon * adv_loss
+            loss_generator = alpha * pyr_loss + beta * rec_loss + gamma * ssim + epsilon * adv_loss
+
 
         val_loss_generator += loss_generator
 
