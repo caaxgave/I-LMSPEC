@@ -1,4 +1,4 @@
-# Learning Multi-Scale Exposure Correction (LMSPEC)
+# Learning Multi-Scale Exposure Correction (LMSPEC) for Endoscopy
 
 ## Training
 
